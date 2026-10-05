@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+playwright
+openpyxl
+pandas
+numpy
+scipy
+plotly
+jupyter

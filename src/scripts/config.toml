@@ -1,0 +1,14 @@
+# Configurazione di main.py (letta da support.py)
+
+[aliquote]
+govt = 0.125  # titoli di Stato (white list)
+corp = 0.26
+
+[url]
+amundi = "https://www.amundietf.it/it/professionali/etf-strategie/scadenza-fissa"
+dws = "https://etf.dws.com/it-it/trova-prodotto/?SearchTerm=target+maturity&AssetClasses=Azionari,Materie+Prime,Multi+Asset,Obbligazionari"
+ishares = "https://www.ishares.com/it/investitore-privato/it/temi-d-investimento/obbligazionario/discover-ibonds-etfs?switchLocale=y&siteEntryPassthrough=true"
+invesco = "https://www.invesco.com/it/it/financial-products/etfs.html?assetType=Fixed+Income&searchParam=BulletShares"
+
+[ishares]
+tabs = ["€ Investment grade corporate", "€ Crossover Corporate", "Government Bonds"]
