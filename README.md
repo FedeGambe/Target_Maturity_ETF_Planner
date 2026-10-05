@@ -1,4 +1,4 @@
-# bond-etf-target-maturity-analysis
+# Bond ETF target maturity analysis
 
 Analisi dei **bond ETF a scadenza fissa (target maturity)**: scraper dei rendimenti e simulazione di un piano di accumulo per comprare un'auto.
 Il versamento mensile è diviso tra conto deposito e una scala di ETF con scadenze diverse; i rendimenti vengono scaricati dai siti degli emittenti.
