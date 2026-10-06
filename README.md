@@ -5,7 +5,7 @@ Il versamento mensile è diviso tra conto deposito e una scala di ETF con scaden
 
 ## Cosa fa
 
-1. **Scraper** (`src/main.py`): legge i siti degli emittenti (Amundi, DWS Xtrackers, iShares iBonds, Invesco BulletShares, BNP Paribas Easy), estrae rendimento a scadenza (YTM), TER, cedola e scadenza, e li aggiunge allo storico `data/yield_etf.xlsx`.
+1. **Scraper** (`src/main.py`): legge i siti degli emittenti (Amundi, DWS Xtrackers, iShares iBonds, Invesco BulletShares, BNP Paribas Easy), estrae rendimento a scadenza (YTM), TER, cedola e scadenza, e li aggiunge allo storico `data/yield_etf.csv`.
 2. **Foglio riepilogo**: da quello storico costruisce `data/rendimenti_etf.xlsx` con l'ultimo dato di ogni ETF, lordo e netto di TER e tasse (12,5% titoli di Stato, 26% corporate).
 3. **Notebook** (`notebooks/`): legge il foglio e confronta piani diversi.
 

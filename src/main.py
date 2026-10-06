@@ -1,5 +1,5 @@
 """Scarica il rendimento a scadenza degli ETF a scadenza fissa (Amundi, DWS Xtrackers, iShares iBonds, Invesco BulletShares, BNP Paribas Easy).
-Aggiunge ogni estrazione allo storico data/yield_etf.xlsx (con filtri) e ricostruisce da lì data/rendimenti_etf.xlsx con l'ultimo dato di ogni ETF, lordo e netto.
+Aggiunge ogni estrazione allo storico data/yield_etf.csv (con filtri) e ricostruisce da lì data/rendimenti_etf.xlsx con l'ultimo dato di ogni ETF, lordo e netto.
 
     python src/main.py             estrae, aggiorna lo storico e il foglio
     python src/main.py --foglio    solo ricostruisce il foglio dallo storico, senza estrarre"""
@@ -13,10 +13,10 @@ from scripts.support import BASE, PROVENTI, scadenza, selfcheck, tipo
 
 def main():
     today = f"{date.today():%d/%m/%Y}"
-    rows = [(today, issuer, name, isin, tipo(name), PROVENTI.get(use.lower(), use), scadenza(name), ter, ytm, as_of, coupon)
-            for issuer, name, isin, use, ter, ytm, as_of, coupon in scrape_all()]
+    rows = [(today, issuer, name, isin, tipo(name), PROVENTI.get(use.lower(), use), scadenza(name), ter, ytm, as_of, coupon, nav, nav_date)
+            for issuer, name, isin, use, ter, ytm, as_of, coupon, nav, nav_date in scrape_all()]
     for r in rows:
-        print(f"{r[3]}  {r[4]:<5} {r[5]:<5} {r[6]} TER {r[7]!s:<5} YTM {r[8]!s:>5} cedola {r[10]!s:>5}  {r[2]}")
+        print(f"{r[3]}  {r[4]:<5} {r[5]:<5} {r[6]} TER {r[7]!s:<5} YTM {r[8]!s:>5} cedola {r[10]!s:>5} NAV {r[11]!s:>8}  {r[2]}")
     append_history(rows)
     print(f"\n{datetime.now():%Y-%m-%d %H:%M} - {len(rows)} ETF aggiunti a {HISTORY.name}")
 

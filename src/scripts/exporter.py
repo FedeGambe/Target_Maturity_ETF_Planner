@@ -1,18 +1,17 @@
-"""Storico yield_etf.xlsx e foglio rendimenti_etf.xlsx."""
+"""Storico yield_etf.csv e foglio rendimenti_etf.xlsx."""
 import csv
 from datetime import datetime
 
-from openpyxl import Workbook, load_workbook
+from openpyxl import Workbook
 from openpyxl.formatting.rule import ColorScaleRule
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from scripts.support import ALIQUOTA_CORP, ALIQUOTA_GOVT, BASE, PROVENTI, months_back, num, pulisci
 
-HISTORY = BASE / "yield_etf.xlsx"
+HISTORY = BASE / "yield_etf.csv"
 HEADER = ["Data estrazione", "Emittente", "Nome", "ISIN", "Tipo", "Proventi", "Scadenza",
-          "TER", "Rendimento a scadenza", "Dati al", "Cedola"]  # Cedola aggiunta dopo: vuota nelle righe più vecchie
-FORMATS = {"A": "DD/MM/YYYY", "G": "DD/MM/YYYY", "H": "0.00%", "I": "0.00%", "J": "DD/MM/YYYY", "K": "0.00%"}
+          "TER", "Rendimento a scadenza", "Dati al", "Cedola", "NAV", "Data NAV"]  # Cedola e NAV aggiunti dopo: vuoti nelle righe più vecchie
 
 
 def native(r):
@@ -23,45 +22,32 @@ def native(r):
     # normalizza anche righe scritte con le etichette vecchie (CSV in sospeso)
     tipo_ = "Corp" if r[4] == "Corporate" else r[4]
     return [d(r[0]), issuer, pulisci(r[2]), r[3], tipo_, PROVENTI.get(r[5].lower(), r[5]),
-            d(r[6]), f(r[7]), f(r[8]), d(r[9]), f(r[10]) if len(r) > 10 else None]
+            d(r[6]), f(r[7]), f(r[8]), d(r[9]), f(r[10]) if len(r) > 10 else None,
+            float(str(r[11]).replace(",", ".")) if len(r) > 11 and r[11] not in ("", None) else None,
+            d(r[12]) if len(r) > 12 else None]
 
 
 def append_history(rows):
-    """Aggiunge allo storico. Se è aperto in Excel (bloccato) salva a parte in yield_etf_da_unire_*.csv:
+    """Aggiunge allo storico CSV. Se è aperto in Excel (bloccato) salva a parte in yield_etf_da_unire_*.csv:
     viene unito allo storico al giro successivo, così nessuna estrazione va persa."""
     pending = sorted(BASE.glob("yield_etf_da_unire_*.csv"))
+    new = [[*r[:7], num(r[7]), num(r[8]), r[9], num(r[10]), num(r[11]), r[12]] for r in rows]
     try:
-        if HISTORY.exists():
-            wb = load_workbook(HISTORY)
-            ws = wb.active
-        else:
-            wb = Workbook()
-            ws = wb.active
-            ws.title = "Storico"
-            ws.append(HEADER)
-            for cell in ws[1]:
-                cell.font = Font(bold=True)
-            for col, width in zip("ABCDEFGHIJK", (15, 12, 70, 14, 10, 14, 11, 7, 20, 11, 9)):
-                ws.column_dimensions[col].width = width
-            ws.freeze_panes = "A2"
-        first = ws.max_row + 1
-        for p in pending:
-            with open(p, encoding="utf-8-sig") as pf:
-                for r in list(csv.reader(pf, delimiter=";"))[1:]:
-                    ws.append(native(r))
-        for r in rows:
-            ws.append(native([*r[:7], num(r[7]), num(r[8]), r[9], num(r[10])]))
-        for col, fmt in FORMATS.items():
-            for cell in ws[col][first - 1:]:
-                cell.number_format = fmt
-        ws.auto_filter.ref = f"A1:K{ws.max_row}"
-        wb.save(HISTORY)
+        old = not HISTORY.exists()
+        with open(HISTORY, "a", newline="", encoding="utf-8-sig") as f:  # utf-8-sig: BOM solo a file nuovo
+            w = csv.writer(f, delimiter=";")
+            if old:
+                w.writerow(HEADER)
+            for p in pending:
+                with open(p, encoding="utf-8-sig") as pf:
+                    w.writerows(list(csv.reader(pf, delimiter=";"))[1:])
+            w.writerows(new)
     except PermissionError:
         p = BASE / f"yield_etf_da_unire_{datetime.now():%Y-%m-%d_%H%M}.csv"
         with open(p, "w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f, delimiter=";")
             w.writerow(HEADER)
-            w.writerows([*r[:7], num(r[7]), num(r[8]), r[9], num(r[10])] for r in rows)
+            w.writerows(new)
         print(f"{HISTORY.name} aperto in Excel: estrazione salvata in {p.name}, verrà unita al prossimo giro")
         return
     for p in pending:
@@ -72,11 +58,10 @@ def latest():
     """Ultimo dato disponibile di ogni ETF (per ISIN) dallo storico, con la variazione del rendimento lordo
     rispetto all'estrazione precedente, a un mese e a tre mesi prima (l'ultima estrazione a quella data o prima)."""
     by_isin = {}
-    wb = load_workbook(HISTORY, read_only=True)
-    for values in wb.active.iter_rows(min_row=2, values_only=True):
-        r = dict(zip(HEADER, values))
-        by_isin.setdefault(r["ISIN"], {})[r["Data estrazione"]] = r  # a parità di giorno vince la riga più recente
-    wb.close()  # read_only tiene il file aperto finché non si chiude
+    with open(HISTORY, encoding="utf-8-sig") as f:
+        for values in list(csv.reader(f, delimiter=";"))[1:]:
+            r = dict(zip(HEADER, native(values)))
+            by_isin.setdefault(r["ISIN"], {})[r["Data estrazione"]] = r  # a parità di giorno vince la riga più recente
     out = []
     for days in by_isin.values():
         dates = sorted(days)
@@ -124,31 +109,32 @@ def write_xlsx(path, rows):
     # anagrafica | cedola, rendimento lordo e sue variazioni | costi e tasse | netti
     ws.append(["Emittente", "Nome", "ISIN", "Tipo", "Proventi", "Scadenza", "Anni a scadenza", "Cedola",
                "Rendimento lordo", "Var giorno prec", "Var mese prec", "Var trimestre prec",
-               "TER", "Aliquota", "Rendimento netto", "Netto TER e tasse"])
+               "TER", "Aliquota", "Rendimento netto", "Netto TER e tasse", "NAV"])
     for i, r in enumerate(rows, start=5):
         ws.append([r["Emittente"], r["Nome"], r["ISIN"], r["Tipo"], r["Proventi"], r["Scadenza"],
                    f'=IF(F{i}="","",MAX(0,YEARFRAC(TODAY(),F{i})))',  # si aggiorna da solo ogni giorno
                    r.get("Cedola"), r["Rendimento a scadenza"], r["Var 1g"], r["Var 1m"], r["Var 3m"], r["TER"],
                    f'=IF(D{i}="Govt",$B$1,$B$2)',
                    f'=IF(I{i}="","",I{i}*(1-N{i}))',
-                   f'=IF(I{i}="","",(I{i}-M{i})*(1-N{i}))'])  # il TER riduce il provento, le tasse si applicano dopo
+                   f'=IF(I{i}="","",(I{i}-M{i})*(1-N{i}))',  # il TER riduce il provento, le tasse si applicano dopo
+                   r.get("NAV")])
     last = ws.max_row
 
     var = "+0.00%;-0.00%;0.00%"  # differenza in punti percentuali, col segno
     for col, fmt in (("F", "DD/MM/YYYY"), ("G", "0.0"), ("H", "0.00%"), ("I", "0.00%"), ("J", var), ("K", var),
-                     ("L", var), ("M", "0.00%"), ("N", "0.0%"), ("O", "0.00%"), ("P", "0.00%")):
+                     ("L", var), ("M", "0.00%"), ("N", "0.0%"), ("O", "0.00%"), ("P", "0.00%"), ("Q", "0.0000")):
         for cell in ws[col][4:]:
             cell.number_format = fmt
-    for col, width in zip("ABCDEFGHIJKLMNOP", (13, 78, 14, 7, 9, 11, 10, 8, 11, 11, 11, 13, 7, 9, 11, 12)):
+    for col, width in zip("ABCDEFGHIJKLMNOPQ", (13, 78, 14, 7, 9, 11, 10, 8, 11, 11, 11, 13, 7, 9, 11, 12, 9)):
         ws.column_dimensions[col].width = width
 
     # grafica: tabella Excel con righe alternate (porta anche i filtri), intestazione a capo
-    ws.add_table(Table(displayName="Rendimenti", ref=f"A4:P{last}",
+    ws.add_table(Table(displayName="Rendimenti", ref=f"A4:Q{last}",
                        tableStyleInfo=TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)))
     ws.row_dimensions[4].height = 32
     for cell in ws[4]:
         cell.alignment = Alignment(wrap_text=True, vertical="center", horizontal="center")
-    for row in ws.iter_rows(min_row=5, min_col=4, max_col=16):
+    for row in ws.iter_rows(min_row=5, min_col=4, max_col=17):
         for cell in row:
             cell.alignment = Alignment(horizontal="center")
     for cell in ws["P"][4:]:
