@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Target Maturity ETF Planner</title>
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23101a1a'/%3E%3Ccircle cx='40' cy='36' r='16' fill='%23e0a93b'/%3E%3Crect x='10' y='44' width='10' height='14' fill='%232f7d71'/%3E%3Crect x='24' y='34' width='10' height='24' fill='%232f7d71'/%3E%3Crect x='38' y='24' width='10' height='34' fill='%236fcdbd'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CclipPath id='r'%3E%3Crect width='64' height='64' rx='14'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg clip-path='url(%23r)'%3E%3Crect width='64' height='64' fill='%233d8fc4'/%3E%3Cg stroke='%233d8fc4' stroke-width='.6' stroke-linejoin='round'%3E%3Cpolygon points='19.0,28.0 32.0,35.5 19.0,43.0 6.0,35.5' fill='%23f5efe2'/%3E%3Cpolygon points='6.0,35.5 19.0,43.0 19.0,58.0 6.0,50.5' fill='%23f0e6d2'/%3E%3Cpolygon points='19.0,43.0 32.0,35.5 32.0,50.5 19.0,58.0' fill='%23908a7e'/%3E%3Cpolygon points='45.0,28.0 58.0,35.5 45.0,43.0 32.0,35.5' fill='%23626a75'/%3E%3Cpolygon points='32.0,35.5 45.0,43.0 45.0,58.0 32.0,50.5' fill='%230d1a2b'/%3E%3Cpolygon points='45.0,43.0 58.0,35.5 58.0,50.5 45.0,58.0' fill='%2308101a'/%3E%3Cpolygon points='32.0,5.5 45.0,13.0 32.0,20.5 19.0,13.0' fill='%23e48675'/%3E%3Cpolygon points='19.0,13.0 32.0,20.5 32.0,35.5 19.0,28.0' fill='%23d6452a'/%3E%3Cpolygon points='32.0,20.5 45.0,13.0 45.0,28.0 32.0,35.5' fill='%23802919'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
 <meta name="description" content="Risultati dell'analisi dei bond ETF a scadenza fissa: classifica filtrabile e andamento dei rendimenti.">
 <style>
 /* Stile di FedeGambe.github.io: carta calda con grana, Georgia per i titoli, Inter per il testo, monospace maiuscolo per le etichette,
@@ -13,28 +13,24 @@
    Fondi scuri (--g*, --bg, --surface) = il colore di fondo della cover, schiarito di pochissimo. Cambia solo le variabili :root. */
 :root{
   --barra:60px;
-  --cover:#efe6d2; --c2-cover:#c9791f;  /* fondo della cover e colore caldo sulla cover (uguali nei due temi) */
+  --cover:#3d8fc4; --c2-cover:#ff5a3c;  /* fondo della cover e colore caldo sulla cover (uguali nei due temi) */
   --g1:#fff3dc; --g2:#e9c9a0; --g3:#e2d6bf; --bg:#f4efe6; --surface:#fbf8f2; --ink:#1c1b19; --ink-2:#44413a; --ink-3:#6b665c; --line:#d9d1c0;
-  --c1:#1f4e46; --c1-ink:#1f4e46; --c2:#d98a2b; --c2-ink:#9a5a0c; --argento:#c9bda3;
-  --accent:var(--c1-ink); --accent-soft:#d9ebe7; --c2-soft:#f8ecd0;
+  --c1:#1d5f8c; --c1-ink:#1d5f8c; --c2:#d6452a; --c2-ink:#a8301a; --argento:#c9bda3;
+  --accent:var(--c1-ink); --accent-soft:#dcebf5; --c2-soft:#f8ddd5;
   --grigio:#6b665c; --grigio-linea:#a39c8b;
   --f-display:Georgia,"Times New Roman",serif;
   --f-body:"Inter",system-ui,sans-serif;
   --f-data:ui-monospace,Consolas,monospace;
 }
 :root[data-theme="dark"]{
-  --g1:#0e1e1c; --g2:#0a1514; --g3:#070d0d; --bg:#0a1010; --surface:#111a19; --ink:#efe9dc; --ink-2:#c4bdae; --ink-3:#9a9486; --line:#33302a;
-  --c1:#6fcdbd; --c1-ink:#6fcdbd; --c2:#e0a93b; --c2-ink:#efc060; --argento:#5d574a;
-  --accent-soft:#12302c; --c2-soft:#2e2410; --grigio:#9a9486; --grigio-linea:#6b665c;
+  --g1:#0e1a28; --g2:#0a121c; --g3:#070b12; --bg:#0a1018; --surface:#111a26; --ink:#efe9dc; --ink-2:#c4bdae; --ink-3:#9a9486; --line:#33302a;
+  --c1:#8fc3e0; --c1-ink:#8fc3e0; --c2:#f08a6e; --c2-ink:#f5a58c; --argento:#5d574a;
+  --accent-soft:#12293a; --c2-soft:#3a1c14; --grigio:#9a9486; --grigio-linea:#6b665c;
   color-scheme:dark; }
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth; scroll-padding-top:calc(var(--barra) + 20px)}
+html{scroll-behavior:smooth; scroll-padding-top:calc(var(--barra) + var(--h-filtri,0px) + 20px)}
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
-@media (min-width:900px) and (pointer:fine) and (prefers-reduced-motion: no-preference){ html{scroll-snap-type:y mandatory} }
-@media (pointer:coarse) and (prefers-reduced-motion: no-preference){ html{scroll-snap-type:y proximity} }
-.copertina,.capitolo{scroll-snap-align:start}
-footer{scroll-snap-align:end}
 body{margin:0; color:var(--ink); font:16px/1.6 var(--f-body); min-height:100vh;
   background:radial-gradient(900px 600px at 10% 0%,var(--g1),transparent 70%),radial-gradient(900px 700px at 100% 100%,var(--g2),transparent 70%),var(--g3); background-attachment:fixed}
 body::before{content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.55;
@@ -49,7 +45,7 @@ h1 em{color:var(--c2); font-style:italic}
 h2{font-size:clamp(1.7rem,3.6vw,2.5rem); font-weight:800; padding-bottom:12px; border-bottom:3px solid var(--ink)}
 h2::before{content:attr(data-n); display:block; font:600 .72rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--argento); margin-bottom:10px}
 .parte-a h2::before{color:var(--c1)} .parte-b h2::before{color:var(--c2)}
-.capitolo{margin-top:140px; padding-bottom:48px}
+.capitolo{margin-top:56px; padding-bottom:16px}
 .capitolo:first-child{margin-top:0}
 p{margin:20px 0}
 h2 + p{margin-top:20px}
@@ -113,6 +109,8 @@ ul{padding-left:22px} li{margin:8px 0}
 .copertina{position:relative; display:flex; flex-direction:column; justify-content:space-between; height:100svh; min-height:560px; overflow:hidden;
   background:var(--cover); color:#efe3c8; --margine:max(20px, calc(50vw - 640px)); border-bottom:3px solid var(--ink)}
 .bauhaus{position:absolute; inset:0; width:100%; height:100%; z-index:0}
+.bauhaus-v{display:none}
+@media (orientation:portrait){ .bauhaus-o{display:none} .bauhaus-v{display:block} }
 .slide-testa{position:relative; z-index:1; padding:calc(var(--barra) + clamp(16px,3vw,48px)) var(--margine) 0;
   opacity:calc(1 - 1.3 * var(--p,0)); transform:translateY(calc(var(--p,0) * 40px))}
 .slide-testa h1{font-size:clamp(2.4rem,7.5vw,5.6rem); line-height:.95; letter-spacing:-.04em; text-wrap:pretty;
@@ -144,18 +142,22 @@ footer a{color:inherit} footer a:hover{color:var(--c2)}
 .firma{display:flex; align-items:center; gap:12px; color:var(--ink); text-decoration:none; font:600 .9rem/1 var(--f-data); letter-spacing:.06em}
 .firma:hover{color:var(--c2)}
 
-.barra-filtri{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 0; margin-top:60px; border-block:1px solid var(--line); background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:15}
-@media (min-width:900px){ .barra-filtri{position:sticky; top:var(--barra)} }
+.barra-filtri{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 16px; margin-top:32px; border:1px solid var(--line); border-radius:10px; background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:15}
+@media (min-width:900px){ .barra-filtri{position:sticky; top:calc(var(--barra) + 10px) }  /* 10px di respiro trasparente sotto la barra */
+.barra-filtri .titolo-filtri{flex:1 0 100%; margin:0; font:600 .72rem/1.3 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2)}
+.barra-filtri .titolo-filtri b{color:var(--c2-ink)}
 .plot{width:100%; height:430px} #g-avg{height:340px}
 @media (max-width:560px){ .plot{height:360px} }
-.impianto{grid-template-columns:minmax(0,1fr)!important} main{margin:0 auto}
-.copertina{color:#1c1b19; --fig:#101a1a}
-figure{background:var(--fig)}
-.copertina .sottotitolo{color:#44413a} .copertina .sottotitolo strong{color:#1c1b19}
-.barra:not(.compatta) .bottone-barra{color:#1c1b19; border-color:#1c1b19}
-.barra:not(.compatta) .bottone-barra:hover{background:#1c1b19; color:#efe6d2}
-.tags span{border-color:#1c1b1966; color:#1c1b19}
-.logo-cover svg path{fill:#1c1b19} .logo-cover::before{display:none}
+.copertina{color:#fff; --fig:#101f33}
+figure{background:#ffffff03; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); border:1px solid #ffffff1f; border-radius:10px; padding:10px 12px 6px; box-shadow:0 18px 40px -22px #000a, inset 0 1px 0 #ffffff14}
+:root:not([data-theme="dark"]) figure{background:#0d1a2bd9}  /* tema chiaro: i grafici hanno testi chiari, il vetro deve restare scuro */
+.modebar-container{top:6px!important; right:8px!important}
+.modebar{display:flex!important; flex-wrap:nowrap!important; width:auto!important; white-space:nowrap} .modebar-group{display:flex!important; float:none!important; padding-left:4px!important}
+.copertina .sottotitolo,.copertina .sottotitolo strong{color:#fff} .copertina h1,.copertina .sottotitolo{text-shadow:0 2px 14px #0d1a2b55}
+.barra:not(.compatta) .bottone-barra{color:#fff; border-color:#fff}
+.barra:not(.compatta) .bottone-barra:hover{background:#fff; color:var(--cover)}
+.tags span{border-color:#fff9; color:#fff}
+.logo-cover svg path{fill:#fff} .logo-cover::before{display:none}
 
 .kpi{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:24px 0}
 .kpi div{background:var(--surface); border:1px solid var(--line); border-top:3px solid var(--c2); border-radius:6px; padding:14px}
@@ -189,6 +191,7 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
   </div>
   <nav class="azioni" aria-label="Navigazione">
     <a class="bottone-barra" href="https://progetti.federicogamberini.it/"><svg viewBox="0 0 341.61 344.35" width="16" height="16" aria-hidden="true"><path fill="var(--c2)" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg><span>← Progetti</span></a>
+    <button class="bottone-barra" id="apri-indice" type="button" aria-expanded="false" aria-controls="indice">Indice</button>
     <button class="bottone-barra" id="tema" type="button" aria-label="Cambia tema chiaro/scuro">Tema</button>
   </nav>
   <div class="avanzamento" aria-hidden="true"></div>
@@ -202,24 +205,22 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
     <div class="tags"><span>Scraping</span><span>Bond ETF</span><span>Rendimenti</span></div>
   </div>
   
-  <svg class="bauhaus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Barre crescenti e un sole dorato su carta">
-<defs>
-<filter id="grana" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 .36  0 0 0 0 .27  0 0 0 0 .15  1.1 0 0 0 -.42"/></filter>
-<filter id="macchie" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".006 .01" numOctaves="3" seed="9"/><feColorMatrix values="0 0 0 0 .55  0 0 0 0 .42  0 0 0 0 .22  .9 0 0 0 -.3"/></filter>
-<filter id="fibre" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".05 .35" numOctaves="2" seed="2"/><feColorMatrix values="0 0 0 0 .4  0 0 0 0 .3  0 0 0 0 .18  1.4 0 0 0 -.62"/></filter>
-</defs>
-<rect width="1600" height="900" fill="#efe6d2"/>
-<rect width="1600" height="900" filter="url(#macchie)" opacity=".55"/>
-<g><rect x="190" y="770" width="92" height="110" fill="#1f4e46"/><rect x="315" y="718" width="92" height="162" fill="#1f4e46"/><rect x="440" y="666" width="92" height="214" fill="#1f4e46"/><rect x="565" y="614" width="92" height="266" fill="#1f4e46"/><rect x="690" y="562" width="92" height="318" fill="#1f4e46"/><rect x="815" y="510" width="92" height="370" fill="#1f4e46"/><rect x="940" y="458" width="92" height="422" fill="#1f4e46"/><rect x="1065" y="406" width="92" height="474" fill="#1f4e46"/></g>
-<circle cx="1270" cy="560" r="190" fill="#d98a2b" style="mix-blend-mode:multiply"/>
-<rect x="120" y="876" width="1360" height="6" fill="#1c1b19"/>
-<rect width="1600" height="900" filter="url(#fibre)" opacity=".18" style="mix-blend-mode:multiply"/>
-<rect width="1600" height="900" filter="url(#grana)" style="mix-blend-mode:multiply"/>
-</svg>
+  <svg class="bauhaus bauhaus-o" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Piramide di cubi isometrici su fondo blu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><defs><filter id="grana"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0"/></filter></defs><rect width="1600" height="900" fill="#3d8fc4"/><svg x="0" y="342" width="1600" height="558" viewBox="0 0 1600 558" overflow="hidden"><polygon points="800.0,15.5 857.1,48.4 800.0,81.3 742.9,48.4" fill="#e48675" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,48.4 800.0,81.3 800.0,147.2 742.9,114.3" fill="#d6452a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,81.3 857.1,48.4 857.1,114.3 800.0,147.2" fill="#802919" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,114.3 800.0,147.2 742.9,180.2 685.9,147.2" fill="#626a75" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="685.9,147.2 742.9,180.2 742.9,246.1 685.9,213.1" fill="#0d1a2b" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,180.2 800.0,147.2 800.0,213.1 742.9,246.1" fill="#08101a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="857.1,114.3 914.1,147.2 857.1,180.2 800.0,147.2" fill="#f5efe2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,147.2 857.1,180.2 857.1,246.1 800.0,213.1" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="857.1,180.2 914.1,147.2 914.1,213.1 857.1,246.1" fill="#908a7e" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="685.9,213.1 742.9,246.1 685.9,279.0 628.8,246.1" fill="#f5efe2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="628.8,246.1 685.9,279.0 685.9,344.9 628.8,311.9" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="685.9,279.0 742.9,246.1 742.9,311.9 685.9,344.9" fill="#908a7e" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,213.1 857.1,246.1 800.0,279.0 742.9,246.1" fill="#b6d8eb" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,246.1 800.0,279.0 800.0,344.9 742.9,311.9" fill="#8fc3e0" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,279.0 857.1,246.1 857.1,311.9 800.0,344.9" fill="#567586" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="914.1,213.1 971.2,246.1 914.1,279.0 857.1,246.1" fill="#e48675" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="857.1,246.1 914.1,279.0 914.1,344.9 857.1,311.9" fill="#d6452a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="914.1,279.0 971.2,246.1 971.2,311.9 914.1,344.9" fill="#802919" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="628.8,311.9 685.9,344.9 628.8,377.8 571.8,344.9" fill="#b6d8eb" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="571.8,344.9 628.8,377.8 628.8,443.7 571.8,410.8" fill="#8fc3e0" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="628.8,377.8 685.9,344.9 685.9,410.8 628.8,443.7" fill="#567586" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,311.9 800.0,344.9 742.9,377.8 685.9,344.9" fill="#e48675" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="685.9,344.9 742.9,377.8 742.9,443.7 685.9,410.8" fill="#d6452a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,377.8 800.0,344.9 800.0,410.8 742.9,443.7" fill="#802919" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="857.1,311.9 914.1,344.9 857.1,377.8 800.0,344.9" fill="#626a75" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,344.9 857.1,377.8 857.1,443.7 800.0,410.8" fill="#0d1a2b" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="857.1,377.8 914.1,344.9 914.1,410.8 857.1,443.7" fill="#08101a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="971.2,311.9 1028.2,344.9 971.2,377.8 914.1,344.9" fill="#f5efe2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="914.1,344.9 971.2,377.8 971.2,443.7 914.1,410.8" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="971.2,377.8 1028.2,344.9 1028.2,410.8 971.2,443.7" fill="#908a7e" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="571.8,410.8 628.8,443.7 571.8,476.7 514.7,443.7" fill="#e48675" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="514.7,443.7 571.8,476.7 571.8,542.5 514.7,509.6" fill="#d6452a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="571.8,476.7 628.8,443.7 628.8,509.6 571.8,542.5" fill="#802919" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="685.9,410.8 742.9,443.7 685.9,476.7 628.8,443.7" fill="#626a75" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="628.8,443.7 685.9,476.7 685.9,542.5 628.8,509.6" fill="#0d1a2b" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="685.9,476.7 742.9,443.7 742.9,509.6 685.9,542.5" fill="#08101a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,410.8 857.1,443.7 800.0,476.7 742.9,443.7" fill="#f5efe2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="742.9,443.7 800.0,476.7 800.0,542.5 742.9,509.6" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="800.0,476.7 857.1,443.7 857.1,509.6 800.0,542.5" fill="#908a7e" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="914.1,410.8 971.2,443.7 914.1,476.7 857.1,443.7" fill="#b6d8eb" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="857.1,443.7 914.1,476.7 914.1,542.5 857.1,509.6" fill="#8fc3e0" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="914.1,476.7 971.2,443.7 971.2,509.6 914.1,542.5" fill="#567586" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="1028.2,410.8 1085.3,443.7 1028.2,476.7 971.2,443.7" fill="#e48675" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="971.2,443.7 1028.2,476.7 1028.2,542.5 971.2,509.6" fill="#d6452a" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/><polygon points="1028.2,476.7 1085.3,443.7 1085.3,509.6 1028.2,542.5" fill="#802919" stroke="#3d8fc4" stroke-width="2.6" stroke-linejoin="round"/></svg><rect width="1600" height="900" filter="url(#grana)" opacity=".35"/></svg>
+  <svg class="bauhaus bauhaus-v" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Piramide di cubi isometrici su fondo blu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350"><defs><filter id="v-grana"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0"/></filter></defs><rect width="1080" height="1350" fill="#3d8fc4"/><svg x="0" y="520" width="1080" height="790" viewBox="0 0 1080 790" overflow="hidden"><polygon points="540.0,21.9 620.8,68.5 540.0,115.2 459.2,68.5" fill="#e48675" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,68.5 540.0,115.2 540.0,208.4 459.2,161.8" fill="#d6452a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,115.2 620.8,68.5 620.8,161.8 540.0,208.4" fill="#802919" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,161.8 540.0,208.4 459.2,255.1 378.4,208.4" fill="#626a75" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="378.4,208.4 459.2,255.1 459.2,348.4 378.4,301.7" fill="#0d1a2b" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,255.1 540.0,208.4 540.0,301.7 459.2,348.4" fill="#08101a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="620.8,161.8 701.6,208.4 620.8,255.1 540.0,208.4" fill="#f5efe2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,208.4 620.8,255.1 620.8,348.4 540.0,301.7" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="620.8,255.1 701.6,208.4 701.6,301.7 620.8,348.4" fill="#908a7e" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="378.4,301.7 459.2,348.4 378.4,395.0 297.7,348.4" fill="#f5efe2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="297.7,348.4 378.4,395.0 378.4,488.3 297.7,441.6" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="378.4,395.0 459.2,348.4 459.2,441.6 378.4,488.3" fill="#908a7e" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,301.7 620.8,348.4 540.0,395.0 459.2,348.4" fill="#b6d8eb" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,348.4 540.0,395.0 540.0,488.3 459.2,441.6" fill="#8fc3e0" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,395.0 620.8,348.4 620.8,441.6 540.0,488.3" fill="#567586" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="701.6,301.7 782.3,348.4 701.6,395.0 620.8,348.4" fill="#e48675" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="620.8,348.4 701.6,395.0 701.6,488.3 620.8,441.6" fill="#d6452a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="701.6,395.0 782.3,348.4 782.3,441.6 701.6,488.3" fill="#802919" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="297.7,441.6 378.4,488.3 297.7,534.9 216.9,488.3" fill="#b6d8eb" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="216.9,488.3 297.7,534.9 297.7,628.2 216.9,581.6" fill="#8fc3e0" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="297.7,534.9 378.4,488.3 378.4,581.6 297.7,628.2" fill="#567586" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,441.6 540.0,488.3 459.2,534.9 378.4,488.3" fill="#e48675" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="378.4,488.3 459.2,534.9 459.2,628.2 378.4,581.6" fill="#d6452a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,534.9 540.0,488.3 540.0,581.6 459.2,628.2" fill="#802919" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="620.8,441.6 701.6,488.3 620.8,534.9 540.0,488.3" fill="#626a75" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,488.3 620.8,534.9 620.8,628.2 540.0,581.6" fill="#0d1a2b" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="620.8,534.9 701.6,488.3 701.6,581.6 620.8,628.2" fill="#08101a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="782.3,441.6 863.1,488.3 782.3,534.9 701.6,488.3" fill="#f5efe2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="701.6,488.3 782.3,534.9 782.3,628.2 701.6,581.6" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="782.3,534.9 863.1,488.3 863.1,581.6 782.3,628.2" fill="#908a7e" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="216.9,581.6 297.7,628.2 216.9,674.8 136.1,628.2" fill="#e48675" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="136.1,628.2 216.9,674.8 216.9,768.1 136.1,721.5" fill="#d6452a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="216.9,674.8 297.7,628.2 297.7,721.5 216.9,768.1" fill="#802919" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="378.4,581.6 459.2,628.2 378.4,674.8 297.7,628.2" fill="#626a75" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="297.7,628.2 378.4,674.8 378.4,768.1 297.7,721.5" fill="#0d1a2b" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="378.4,674.8 459.2,628.2 459.2,721.5 378.4,768.1" fill="#08101a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,581.6 620.8,628.2 540.0,674.8 459.2,628.2" fill="#f5efe2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="459.2,628.2 540.0,674.8 540.0,768.1 459.2,721.5" fill="#f0e6d2" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="540.0,674.8 620.8,628.2 620.8,721.5 540.0,768.1" fill="#908a7e" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="701.6,581.6 782.3,628.2 701.6,674.8 620.8,628.2" fill="#b6d8eb" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="620.8,628.2 701.6,674.8 701.6,768.1 620.8,721.5" fill="#8fc3e0" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="701.6,674.8 782.3,628.2 782.3,721.5 701.6,768.1" fill="#567586" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="863.1,581.6 943.9,628.2 863.1,674.8 782.3,628.2" fill="#e48675" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="782.3,628.2 863.1,674.8 863.1,768.1 782.3,721.5" fill="#d6452a" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/><polygon points="863.1,674.8 943.9,628.2 943.9,721.5 863.1,768.1" fill="#802919" stroke="#3d8fc4" stroke-width="3.7" stroke-linejoin="round"/></svg><rect width="1080" height="1350" filter="url(#v-grana)" opacity=".35"/></svg>
   <a class="logo-cover" href="https://progetti.federicogamberini.it/" aria-label="Federico Gamberini, progetti"><svg viewBox="0 0 341.61 344.35" width="44" height="44" aria-hidden="true"><path fill="#fff" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg></a>
 </section>
 
 <div class="impianto">
+<nav class="indice" id="indice" aria-label="Indice">
+  <div class="titolo">Indice</div>
+  <ol>
+    <li class="gruppo-grigio"><a href="#c0">Sintesi</a></li>
+    <li><a href="#c1">1. Classifica ETF</a></li>
+    <li><a class="link-b" href="#c2">2. Andamento nel tempo</a></li>
+    <li><a href="#c3">3. Curva per scadenza</a></li>
+    <li><a class="link-b" href="#c4">4. Limiti</a></li>
+  </ol>
+</nav>
 <main>
 
 
@@ -229,6 +230,7 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
 <div class="conclusione"><p>Il miglior netto oggi è <strong>Xtrackers II Rolling Target Maturity Sept 2027 EUR High Yield UCITS ETF 1D</strong> (scadenza 09/2027): 3,68% dopo TER e tasse.</p></div></section>
 
 <div class="barra-filtri" id="filtri" role="group" aria-label="Filtri per tabella e grafici">
+ <p class="titolo-filtri"><b>Filtri globali</b> · valgono per tabella e grafici di tutti i capitoli</p>
  <div class="gruppo" data-f="p"><span class="et">Proventi</span><button data-v="" class="on">Tutti</button><button data-v="Acc">Acc</button><button data-v="Dist">Dist</button></div>
  <div class="gruppo" data-f="t"><span class="et">Tipo</span><button data-v="" class="on">Tutti</button><button data-v="Corp">Corp</button><button data-v="Govt">Govt</button></div>
  <div class="gruppo" data-f="b"><span class="et">Scadenza</span><button data-v="" class="on">Tutte</button><button data-v="0-3">0–3 anni</button><button data-v="4-8">4–8 anni</button><button data-v="8+">oltre 8</button></div>
@@ -264,11 +266,14 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
 const $ = id => document.getElementById(id);
 const barra = $("barra"), copertina = $("copertina");
 const riduciMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const filtri = $("filtri"), desktop = matchMedia("(min-width:900px)");
+function misuraFiltri() { document.documentElement.style.setProperty("--h-filtri", desktop.matches ? filtri.offsetHeight + 10 + "px" : "0px"); }  // il filtro è sticky: gli scroll agli anchor devono stare sotto
+new ResizeObserver(misuraFiltri).observe(filtri); desktop.addEventListener("change", misuraFiltri); misuraFiltri();
 const capitoli = [...document.querySelectorAll(".capitolo")], voci = [...document.querySelectorAll(".indice a")];
 let inCoda = false;
 function aggiornaBarra() {
   inCoda = false;
-  const y = scrollY, hc = copertina.offsetHeight, hb = barra.offsetHeight, soglia = hb + 40;
+  const y = scrollY, hc = copertina.offsetHeight, hb = barra.offsetHeight, soglia = hb + (desktop.matches ? filtri.offsetHeight + 10 : 0) + 40;
   if (!riduciMovimento) copertina.style.setProperty("--p", Math.min(1, y / hc).toFixed(3));
   barra.classList.toggle("compatta", y > hc - hb * 2);
   const max = document.documentElement.scrollHeight - innerHeight;
@@ -283,6 +288,10 @@ addEventListener("scroll", () => { if (!inCoda) { inCoda = true; requestAnimatio
 addEventListener("resize", aggiornaBarra);
 aggiornaBarra();
 
+const indice = $("indice"), apri = $("apri-indice");
+function mostraIndice(on) { indice.classList.toggle("aperto", on); apri.setAttribute("aria-expanded", on); }
+apri.addEventListener("click", () => mostraIndice(!indice.classList.contains("aperto")));
+indice.addEventListener("click", e => { if (e.target.closest("a")) mostraIndice(false); });
 addEventListener("keydown", e => { if (e.key === "Escape") mostraIndice(false); });
 
 $("tema").addEventListener("click", () => {
@@ -299,17 +308,17 @@ const S={p:"",t:"",b:"",q:"",k:"net",asc:false,pg:0,n:10};
 function filtrati(){const q=S.q.toLowerCase();
   return E.filter(e=>(!S.p||e.p===S.p)&&(!S.t||e.t===S.t)&&(!S.b||e.b===S.b)&&(!q||(e.n+" "+e.em).toLowerCase().includes(q)))
    .sort((a,b)=>{const x=a[S.k],y=b[S.k],r=typeof x==="string"?x.localeCompare(y):x-y; return S.asc?r:-r;});}
-const CT={Corp:"#e0a93b",Govt:"#6fcdbd"}, PAL=["#e0a93b","#6fcdbd","#e8765a","#9db4f0","#c9a8e8","#a6d96a","#f4a6c0","#d9d9d9"];
+const CT={Corp:"#f08a6e",Govt:"#8fc3e0"}, PAL=["#f08a6e","#8fc3e0","#e8765a","#9db4f0","#c9a8e8","#a6d96a","#f4a6c0","#d9d9d9"];
 const GR="rgba(255,255,255,.1)", base={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:"#d9ccaf",family:"ui-monospace,Consolas,monospace",size:11},
-  margin:{l:58,r:18,t:14,b:60},legend:{orientation:"h",y:-.18},hovermode:"x unified",hoverlabel:{font:{size:11}}};
-const cfg={responsive:true,displaylogo:false,scrollZoom:true,modeBarButtonsToRemove:["select2d","lasso2d"]};
+  margin:{l:58,r:18,t:46,b:60},legend:{orientation:"h",y:-.18},modebar:{orientation:"h",bgcolor:"rgba(0,0,0,0)",color:"#9a9486",activecolor:"#efe9dc"},hovermode:"x unified",hoverlabel:{bgcolor:"#0a1018",bordercolor:"#efe9dc",namelength:-1,align:"left",font:{size:13,color:"#efe9dc",family:"ui-monospace,Consolas,monospace"}}};
+const cfg={responsive:true,displaylogo:false,displayModeBar:true,scrollZoom:false,modeBarButtonsToRemove:["select2d","lasso2d","zoomIn2d","zoomOut2d","autoScale2d"]};
 function plot(id,tr,o){const L={...base,...o,xaxis:{gridcolor:GR,...(o.xaxis||{})},yaxis:{gridcolor:GR,ticksuffix:"%",tickformat:".2f",zeroline:false,...(o.yaxis||{})}};
   if(!tr.length)L.annotations=[{text:"Nessun dato con questi filtri",showarrow:false,x:.5,y:.5,xref:"paper",yref:"paper"}];
   Plotly.react(id,tr,L,cfg);}
 function grafici(L){
   const top=L.slice().sort((a,b)=>b.net-a.net).slice(0,8);
-  plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:2.2},marker:{size:6},hovertemplate:"%{y:.2f}%"})),
-    {xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}});
+  plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:2.2},marker:{size:6},hoverlabel:{bordercolor:PAL[i]},hovertemplate:"<b>%{fullData.name}</b><br>%{x|%d/%m/%Y}: %{y:.2f}%<extra></extra>"})),
+    {hovermode:"closest",xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}});
   const med=["Corp","Govt"].map(t=>{const f=L.filter(e=>e.t===t&&!e.y.includes(null)); if(!f.length)return null;
     return {x:D.iso,y:D.iso.map((_,i)=>f.reduce((s,e)=>s+e.ny[i],0)/f.length),type:"scatter",mode:"lines+markers",name:t+" (media di "+f.length+" ETF)",line:{color:CT[t],width:2.4},hovertemplate:"%{y:.2f}%"};}).filter(Boolean);
   plot("g-avg",med,{xaxis:{type:"date",tickformat:"%d/%m"}});
