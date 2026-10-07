@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Target Maturity ETF Planner</title>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23101a1a'/%3E%3Ccircle cx='40' cy='36' r='16' fill='%23e0a93b'/%3E%3Crect x='10' y='44' width='10' height='14' fill='%232f7d71'/%3E%3Crect x='24' y='34' width='10' height='24' fill='%232f7d71'/%3E%3Crect x='38' y='24' width='10' height='34' fill='%236fcdbd'/%3E%3C/svg%3E">
+<meta name="description" content="Risultati dell'analisi dei bond ETF a scadenza fissa: classifica filtrabile e andamento dei rendimenti.">
+<style>
+/* Stile di FedeGambe.github.io: carta calda con grana, Georgia per i titoli, Inter per il testo, monospace maiuscolo per le etichette,
+   righe nere da 3px, pillole. COLORI DERIVATI DALLA COVER: --c2 = colore caldo (il pezzo che colora il titolo <em>, in genere a metà del gradiente del sole/forma principale),
+   --c1 = colore freddo/secondario della cover (linee, griglia). Versione chiara = scurito per il contrasto, scura = chiaro. --c1 = data-parte="a", --c2 = data-parte="b".
+   Fondi scuri (--g*, --bg, --surface) = il colore di fondo della cover, schiarito di pochissimo. Cambia solo le variabili :root. */
+:root{
+  --barra:60px;
+  --cover:#efe6d2; --c2-cover:#c9791f;  /* fondo della cover e colore caldo sulla cover (uguali nei due temi) */
+  --g1:#fff3dc; --g2:#e9c9a0; --g3:#e2d6bf; --bg:#f4efe6; --surface:#fbf8f2; --ink:#1c1b19; --ink-2:#44413a; --ink-3:#6b665c; --line:#d9d1c0;
+  --c1:#1f4e46; --c1-ink:#1f4e46; --c2:#d98a2b; --c2-ink:#9a5a0c; --argento:#c9bda3;
+  --accent:var(--c1-ink); --accent-soft:#d9ebe7; --c2-soft:#f8ecd0;
+  --grigio:#6b665c; --grigio-linea:#a39c8b;
+  --f-display:Georgia,"Times New Roman",serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --f-data:ui-monospace,Consolas,monospace;
+}
+:root[data-theme="dark"]{
+  --g1:#0e1e1c; --g2:#0a1514; --g3:#070d0d; --bg:#0a1010; --surface:#111a19; --ink:#efe9dc; --ink-2:#c4bdae; --ink-3:#9a9486; --line:#33302a;
+  --c1:#6fcdbd; --c1-ink:#6fcdbd; --c2:#e0a93b; --c2-ink:#efc060; --argento:#5d574a;
+  --accent-soft:#12302c; --c2-soft:#2e2410; --grigio:#9a9486; --grigio-linea:#6b665c;
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:calc(var(--barra) + 20px)}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+@media (min-width:900px) and (pointer:fine) and (prefers-reduced-motion: no-preference){ html{scroll-snap-type:y mandatory} }
+@media (pointer:coarse) and (prefers-reduced-motion: no-preference){ html{scroll-snap-type:y proximity} }
+.copertina,.capitolo{scroll-snap-align:start}
+footer{scroll-snap-align:end}
+body{margin:0; color:var(--ink); font:16px/1.6 var(--f-body); min-height:100vh;
+  background:radial-gradient(900px 600px at 10% 0%,var(--g1),transparent 70%),radial-gradient(900px 700px at 100% 100%,var(--g2),transparent 70%),var(--g3); background-attachment:fixed}
+body::before{content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.55;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .45 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+.impianto{max-width:1320px; margin:0 auto; padding-inline:20px; padding-block:40px 80px;
+  display:grid; grid-template-columns:minmax(0,1fr); gap:0 48px}
+@media (min-width:1180px){ .impianto{grid-template-columns:230px minmax(0,1fr)} }
+main{min-width:0; max-width:1020px}
+h1,h2{font-family:var(--f-display); line-height:1; text-wrap:balance; margin:0; letter-spacing:-.03em}
+h1{font-size:clamp(2.4rem,7vw,5.2rem); font-weight:800}
+h1 em{color:var(--c2); font-style:italic}
+h2{font-size:clamp(1.7rem,3.6vw,2.5rem); font-weight:800; padding-bottom:12px; border-bottom:3px solid var(--ink)}
+h2::before{content:attr(data-n); display:block; font:600 .72rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--argento); margin-bottom:10px}
+.parte-a h2::before{color:var(--c1)} .parte-b h2::before{color:var(--c2)}
+.capitolo{margin-top:140px; padding-bottom:48px}
+.capitolo:first-child{margin-top:0}
+p{margin:20px 0}
+h2 + p{margin-top:20px}
+strong{font-weight:600}
+a{color:var(--accent); text-decoration-thickness:1px; text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--c2); outline-offset:2px}
+code{font-family:var(--f-data); font-size:.88em; background:var(--accent-soft); padding:1px 6px; border-radius:3px}
+ul{padding-left:22px} li{margin:8px 0}
+
+/* Indice */
+.indice{font-size:.9rem}
+.indice .titolo{font:600 .72rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-bottom:12px}
+.indice ol{list-style:none; margin:0; padding:0}
+.indice li{margin:0 0 4px}
+.indice a{color:var(--ink); text-decoration:none; display:block; padding:4px 0 4px 10px; border-left:2px solid transparent; font:600 .8rem/1.35 var(--f-data); letter-spacing:.02em}
+.indice a:hover{color:var(--c1-ink)}
+.indice a.attivo{border-left-color:var(--c1); color:var(--c1-ink)}
+.indice .link-b:hover{color:var(--c2-ink)}
+.indice .link-b.attivo{border-left-color:var(--c2); color:var(--c2-ink)}
+.indice .gruppo-grigio a:hover{color:var(--grigio)}
+.indice .gruppo-grigio a.attivo{border-left-color:var(--grigio-linea); color:var(--grigio)}
+@media (min-width:1180px){
+  .indice{position:sticky; top:calc(var(--barra) + 20px); align-self:start; max-height:calc(100vh - var(--barra) - 40px); overflow:auto; padding-top:8px}
+}
+@media (max-width:1179px){
+  .indice{position:fixed; z-index:19; top:var(--barra); left:0; right:0; max-height:calc(100dvh - var(--barra)); overflow:auto;
+    background:var(--surface); border-bottom:1px solid var(--line); box-shadow:0 14px 28px #0003; padding:18px 20px 24px; display:none}
+  .indice.aperto{display:block}
+  .indice > ol{columns:2; column-gap:28px}
+  .indice li{break-inside:avoid}
+}
+@media (max-width:560px){ .indice > ol{columns:1} }
+
+/* Barra in alto */
+.barra{position:fixed; z-index:20; inset:0 0 auto; height:calc(var(--barra) + env(safe-area-inset-top,0px)); padding:env(safe-area-inset-top,0px) 20px 0;
+  display:flex; align-items:center; gap:16px; transition:background .35s, box-shadow .35s; --colore-parte:var(--grigio-linea)}
+.barra[data-parte="a"]{--colore-parte:var(--c1)} .barra[data-parte="b"]{--colore-parte:var(--c2)}
+.barra.compatta{background:color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); box-shadow:0 1px 0 var(--line)}
+.dove{flex:1; min-width:0; opacity:0; transform:translateY(-6px); transition:opacity .25s, transform .25s; pointer-events:none}
+.barra.compatta .dove{opacity:1; transform:none; pointer-events:auto}
+.dove .progetto{display:block; width:max-content; max-width:100%; font:600 .68rem/1.3 var(--f-data); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-3); text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dove .progetto:hover{color:var(--ink)}
+.posizione{font:700 1rem/1.3 var(--f-display); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; padding-left:16px}
+.posizione::before{content:""; position:absolute; left:0; top:.4em; width:.55em; height:.55em; border-radius:50%; background:var(--colore-parte)}
+.azioni{display:flex; gap:8px; flex:none; margin-left:auto}
+.bottone-barra{font:600 .8rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:none; border:1px solid var(--ink); border-radius:999px;
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.bottone-barra{text-decoration:none; display:inline-flex; align-items:center; gap:8px}
+.bottone-barra:hover{background:var(--ink); color:var(--bg)}
+.barra:not(.compatta) .bottone-barra{color:#efe3c8; border-color:#efe3c8}
+.barra:not(.compatta) .bottone-barra:hover{background:#efe3c8; color:var(--cover)}
+#apri-indice{display:none}
+@media (max-width:1179px){ #apri-indice{display:inline-block} }
+.avanzamento{position:absolute; left:0; bottom:0; width:100%; height:3px; background:var(--colore-parte);
+  transform-origin:left; transform:scaleX(var(--avanzamento,0)); opacity:0; transition:opacity .25s}
+.barra.compatta .avanzamento{opacity:1}
+@media (prefers-reduced-motion: reduce){ .barra,.dove,.avanzamento{transition:none} }
+
+/* Copertina a schermo intero: l'illustrazione riempie lo schermo, titolo in alto a tutta larghezza, diciture in basso */
+.copertina{position:relative; display:flex; flex-direction:column; justify-content:space-between; height:100svh; min-height:560px; overflow:hidden;
+  background:var(--cover); color:#efe3c8; --margine:max(20px, calc(50vw - 640px)); border-bottom:3px solid var(--ink)}
+.bauhaus{position:absolute; inset:0; width:100%; height:100%; z-index:0}
+.slide-testa{position:relative; z-index:1; padding:calc(var(--barra) + clamp(16px,3vw,48px)) var(--margine) 0;
+  opacity:calc(1 - 1.3 * var(--p,0)); transform:translateY(calc(var(--p,0) * 40px))}
+.slide-testa h1{font-size:clamp(2.4rem,7.5vw,5.6rem); line-height:.95; letter-spacing:-.04em; text-wrap:pretty;
+  transform-origin:left bottom; transform:scale(calc(1 - .3 * var(--p,0)))}
+.copertina h1 em{color:var(--c2-cover)}
+.copertina .sottotitolo{font-size:clamp(1rem,1.7vw,1.2rem); margin:20px 0 0; color:#d9ccaf}
+.copertina .sottotitolo p{margin:0}
+.copertina .sottotitolo strong{color:#efe3c8}
+
+.tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:20px}
+.tags span{font:600 .7rem/1 var(--f-data); border:1px solid #ffffff55; padding:5px 8px; border-radius:999px; color:#fffd}
+
+/* Tabelle e grafici */
+.tabella{overflow-x:auto; margin:16px 0; border:1px solid var(--line); border-radius:6px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.86rem; line-height:1.4}
+th,td{padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 .72rem/1.4 var(--f-data); color:var(--ink-3); background:var(--bg); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap}
+tbody tr:hover td{background:color-mix(in srgb, var(--accent-soft) 55%, transparent)}
+.parte-b tbody tr:hover td{background:color-mix(in srgb, var(--c2-soft) 55%, transparent)}
+figure{margin:20px 0 8px; background:var(--cover); border-radius:6px; padding:8px; min-width:0; overflow:hidden; box-shadow:0 18px 40px -22px #000a}  /* cornice scura in entrambi i temi */
+.conclusione{border-left:4px solid var(--c2); background:var(--surface); padding:6px 18px; border-radius:0 6px 6px 0; margin:20px 0; box-shadow:0 1px 0 var(--line), 0 12px 30px -18px rgba(28,27,25,.35)}
+footer{margin-top:80px; padding-top:18px; border-top:3px solid var(--ink); font:600 .78rem/1.6 var(--f-data); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3)}
+footer a{color:inherit} footer a:hover{color:var(--c2)}
+.logo-cover{position:absolute; z-index:1; right:var(--margine); bottom:0; padding:0 0 26px; opacity:calc(1 - 1.3 * var(--p,0))}
+.logo-cover::before{content:""; position:absolute; z-index:-1; right:calc(-1 * var(--margine)); bottom:0; width:min(620px,90vw); height:340px;
+  background:radial-gradient(ellipse at 100% 100%, var(--cover) 0%, color-mix(in srgb, var(--cover) 82%, transparent) 30%, transparent 70%)}
+.logo-cover svg{display:block}
+.firma{display:flex; align-items:center; gap:12px; color:var(--ink); text-decoration:none; font:600 .9rem/1 var(--f-data); letter-spacing:.06em}
+.firma:hover{color:var(--c2)}
+
+.barra-filtri{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 0; margin-top:60px; border-block:1px solid var(--line); background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:15}
+@media (min-width:900px){ .barra-filtri{position:sticky; top:var(--barra)} }
+.plot{width:100%; height:430px} #g-avg{height:340px}
+@media (max-width:560px){ .plot{height:360px} }
+.impianto{grid-template-columns:minmax(0,1fr)!important} main{margin:0 auto}
+.copertina{color:#1c1b19; --fig:#101a1a}
+figure{background:var(--fig)}
+.copertina .sottotitolo{color:#44413a} .copertina .sottotitolo strong{color:#1c1b19}
+.barra:not(.compatta) .bottone-barra{color:#1c1b19; border-color:#1c1b19}
+.barra:not(.compatta) .bottone-barra:hover{background:#1c1b19; color:#efe6d2}
+.tags span{border-color:#1c1b1966; color:#1c1b19}
+.logo-cover svg path{fill:#1c1b19} .logo-cover::before{display:none}
+
+.kpi{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:24px 0}
+.kpi div{background:var(--surface); border:1px solid var(--line); border-top:3px solid var(--c2); border-radius:6px; padding:14px}
+.kpi b{display:block; font:800 1.8rem/1 var(--f-display); letter-spacing:-.03em; margin-bottom:6px}
+.kpi span{font:600 .7rem/1.3 var(--f-data); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
+.filtri{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; margin:20px 0}
+.gruppo{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.gruppo .et{font:600 .68rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-right:4px}
+.gruppo button{font:600 .78rem/1 var(--f-data); color:var(--ink); background:none; border:1px solid var(--line); border-radius:999px; padding:7px 12px; cursor:pointer}
+.gruppo button.on{background:var(--c1); border-color:var(--c1); color:var(--cover)}
+select,input[type=search]{font:600 .8rem/1 var(--f-data); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px}
+input[type=search]{min-width:220px; flex:1}
+th[data-k]{cursor:pointer; user-select:none} th[data-k]:hover{color:var(--ink)} th.on::after{content:" ▼"; font-size:.7em} th.on.asc::after{content:" ▲"}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
+td.netto{font-weight:700; color:var(--c1-ink)}
+.badge{font:600 .66rem/1 var(--f-data); padding:3px 6px; border-radius:999px; border:1px solid var(--line)}
+.badge.corp{border-color:var(--c2); color:var(--c2-ink)} .badge.govt{border-color:var(--c1); color:var(--c1-ink)}
+.pager{display:flex; align-items:center; gap:12px; font:600 .78rem/1 var(--f-data); color:var(--ink-3); margin-bottom:8px}
+.pager label{margin-left:auto}
+.pager button:disabled{opacity:.35; cursor:default}
+figure svg{display:block; width:100%; height:auto}
+figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
+.leg{display:flex; flex-wrap:wrap; gap:6px 16px; padding:8px 12px 10px; font:600 .72rem/1.3 var(--f-data); color:#d9ccaf}
+.leg i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px}
+</style>
+<script>try{document.documentElement.dataset.theme=localStorage.theme||"dark"}catch{document.documentElement.dataset.theme="dark"}</script>
+
+<header class="barra" id="barra">
+  <div class="dove">
+    <a class="progetto" href="#copertina">Target Maturity ETF Planner</a>
+  </div>
+  <nav class="azioni" aria-label="Navigazione">
+    <a class="bottone-barra" href="https://progetti.federicogamberini.it/"><svg viewBox="0 0 341.61 344.35" width="16" height="16" aria-hidden="true"><path fill="var(--c2)" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg><span>← Progetti</span></a>
+    <button class="bottone-barra" id="tema" type="button" aria-label="Cambia tema chiaro/scuro">Tema</button>
+  </nav>
+  <div class="avanzamento" aria-hidden="true"></div>
+</header>
+
+<section class="copertina" id="copertina">
+  <div class="slide-testa">
+    <h1>Target Maturity <em>ETF</em> Planner</h1>  
+    <div class="sottotitolo"><p>Rendimenti dei bond ETF a scadenza fissa: <strong>56 fondi</strong>, 5 emittenti, storico dal 24/09/2026.</p></div>
+    
+    <div class="tags"><span>Scraping</span><span>Bond ETF</span><span>Rendimenti</span></div>
+  </div>
+  
+  <svg class="bauhaus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Barre crescenti e un sole dorato su carta">
+<defs>
+<filter id="grana" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 .36  0 0 0 0 .27  0 0 0 0 .15  1.1 0 0 0 -.42"/></filter>
+<filter id="macchie" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".006 .01" numOctaves="3" seed="9"/><feColorMatrix values="0 0 0 0 .55  0 0 0 0 .42  0 0 0 0 .22  .9 0 0 0 -.3"/></filter>
+<filter id="fibre" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".05 .35" numOctaves="2" seed="2"/><feColorMatrix values="0 0 0 0 .4  0 0 0 0 .3  0 0 0 0 .18  1.4 0 0 0 -.62"/></filter>
+</defs>
+<rect width="1600" height="900" fill="#efe6d2"/>
+<rect width="1600" height="900" filter="url(#macchie)" opacity=".55"/>
+<g><rect x="190" y="770" width="92" height="110" fill="#1f4e46"/><rect x="315" y="718" width="92" height="162" fill="#1f4e46"/><rect x="440" y="666" width="92" height="214" fill="#1f4e46"/><rect x="565" y="614" width="92" height="266" fill="#1f4e46"/><rect x="690" y="562" width="92" height="318" fill="#1f4e46"/><rect x="815" y="510" width="92" height="370" fill="#1f4e46"/><rect x="940" y="458" width="92" height="422" fill="#1f4e46"/><rect x="1065" y="406" width="92" height="474" fill="#1f4e46"/></g>
+<circle cx="1270" cy="560" r="190" fill="#d98a2b" style="mix-blend-mode:multiply"/>
+<rect x="120" y="876" width="1360" height="6" fill="#1c1b19"/>
+<rect width="1600" height="900" filter="url(#fibre)" opacity=".18" style="mix-blend-mode:multiply"/>
+<rect width="1600" height="900" filter="url(#grana)" style="mix-blend-mode:multiply"/>
+</svg>
+  <a class="logo-cover" href="https://progetti.federicogamberini.it/" aria-label="Federico Gamberini, progetti"><svg viewBox="0 0 341.61 344.35" width="44" height="44" aria-hidden="true"><path fill="#fff" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg></a>
+</section>
+
+<div class="impianto">
+<main>
+
+
+<section class="capitolo" id="c0" data-titolo="Sintesi" data-parte=""><h2 data-n="Capitolo 00">Sintesi</h2>
+<p>Lo scraper del progetto raccoglie il rendimento a scadenza (YTM) di <strong>56 bond ETF target maturity</strong> di 5 emittenti. Questa pagina riassume l'ultimo dato (07/10/2026) e lo storico dal 24/09/2026 su 9 rilevazioni.</p>
+<div class="kpi"><div><b>56</b><span>ETF monitorati</span></div><div><b>5,27%</b><span>miglior YTM lordo</span></div><div><b>3,68%</b><span>miglior rendimento netto</span></div><div><b>2026–2037</b><span>scadenze coperte</span></div></div>
+<div class="conclusione"><p>Il miglior netto oggi è <strong>Xtrackers II Rolling Target Maturity Sept 2027 EUR High Yield UCITS ETF 1D</strong> (scadenza 09/2027): 3,68% dopo TER e tasse.</p></div></section>
+
+<div class="barra-filtri" id="filtri" role="group" aria-label="Filtri per tabella e grafici">
+ <div class="gruppo" data-f="p"><span class="et">Proventi</span><button data-v="" class="on">Tutti</button><button data-v="Acc">Acc</button><button data-v="Dist">Dist</button></div>
+ <div class="gruppo" data-f="t"><span class="et">Tipo</span><button data-v="" class="on">Tutti</button><button data-v="Corp">Corp</button><button data-v="Govt">Govt</button></div>
+ <div class="gruppo" data-f="b"><span class="et">Scadenza</span><button data-v="" class="on">Tutte</button><button data-v="0-3">0–3 anni</button><button data-v="4-8">4–8 anni</button><button data-v="8+">oltre 8</button></div>
+ <input id="f-cerca" type="search" placeholder="Cerca nome o emittente…" aria-label="Cerca">
+</div>
+
+<section class="capitolo parte-a" id="c1" data-titolo="1. Classifica ETF" data-parte="a"><h2 data-n="Capitolo 01">Classifica degli ETF</h2>
+<p>Tabella ordinata per rendimento netto (YTM meno TER, poi tasse: 12,5% titoli di Stato, 26% corporate). I filtri in alto valgono anche per i grafici. Clicca sulle intestazioni per riordinare.</p>
+<div class="tabella"><table id="tab"><thead><tr><th>#</th><th data-k="n">ETF</th><th data-k="em">Emittente</th><th data-k="t">Tipo</th><th data-k="p">Prov.</th><th data-k="a">Scad.</th><th data-k="ter" class="num">TER</th><th data-k="lordo" class="num">Lordo</th><th data-k="net" class="num on">Netto</th></tr></thead><tbody></tbody></table></div>
+<div class="pager"><button id="prev" class="bottone-barra">←</button><span id="pag"></span><button id="next" class="bottone-barra">→</button><label>Righe <select id="f-righe"><option>10</option><option>25</option><option value="9999">Tutte</option></select></label></div>
+</section>
+
+<section class="capitolo parte-b" id="c2" data-titolo="2. Andamento nel tempo" data-parte="b"><h2 data-n="Capitolo 02">Andamento del rendimento</h2>
+<p>Rendimento a scadenza <strong>netto</strong> (dopo TER e tasse) rilevato ogni giorno. Grafici interattivi: zoom trascinando, doppio clic per tornare alla vista iniziale, clic sulla legenda per nascondere una serie. Il primo segue gli <strong>8 migliori ETF</strong> secondo i filtri; il secondo confronta la media Corp e Govt degli ETF filtrati presenti in tutte le rilevazioni.</p>
+<figure><div id="g-top" class="plot"></div></figure>
+<figure><div id="g-avg" class="plot"></div></figure>
+</section>
+
+<section class="capitolo parte-a" id="c3" data-titolo="3. Curva per scadenza" data-parte="a"><h2 data-n="Capitolo 03">Rendimento per scadenza</h2>
+<p>Ultimo dato: ogni punto è un ETF (passa il mouse per il nome), le linee sono la media per anno di scadenza. Mostra quanto si guadagna allungando la durata e quanto pesa la tassazione agevolata dei titoli di Stato.</p>
+<figure><div id="g-curva" class="plot"></div></figure>
+</section>
+
+<section class="capitolo parte-b" id="c4" data-titolo="4. Limiti" data-parte="b"><h2 data-n="Capitolo 04">Come leggere i dati</h2>
+<ul><li>Lo <strong>YTM</strong> è quello del giorno di estrazione, non una promessa di rendimento.</li><li>Il netto è <code>(YTM − TER) × (1 − aliquota)</code>; le aliquote sono in <code>src/scripts/config.toml</code>.</li><li>Lo storico è breve (9 rilevazioni): i movimenti sono di pochi centesimi percentuali.</li><li>Strumento personale di studio, non consulenza finanziaria.</li></ul></section>
+
+<footer><p>Dati: data/yield_etf.csv · aggiornato al 07/10/2026 · non è consulenza finanziaria</p><p><a class="firma" href="https://progetti.federicogamberini.it/"><svg viewBox="0 0 341.61 344.35" width="28" height="28" aria-hidden="true"><path fill="var(--c2)" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg><span>Federico Gamberini</span></a></p></footer>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" charset="utf-8"></script>
+<script id="dati" type="application/json">{"base":2026,"iso":["2026-09-24","2026-09-25","2026-09-28","2026-09-29","2026-09-30","2026-10-02","2026-10-05","2026-10-06","2026-10-07"],"dates":["24/09","25/09","28/09","29/09","30/09","02/10","05/10","06/10","07/10"],"etfs":[{"isin":"LU1109939865","n":"Xtrackers II Rolling Target Maturity Sept 2027 EUR High Yield UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2027,"sc":"09/2027","ter":0.3,"y":[5.37,5.38,5.71,5.71,2.62,4.77,2.57,5.05,5.27],"ny":[3.752,3.759,4.003,4.003,1.717,3.308,1.68,3.515,3.678]},{"isin":"LU1109941689","n":"Xtrackers II Rolling Target Maturity Sept 2027 EUR High Yield UCITS ETF 1C","em":"DWS","t":"Corp","p":"Acc","a":2027,"sc":"09/2027","ter":0.3,"y":[5.37,5.38,5.71,5.71,2.62,4.77,2.57,5.05,5.27],"ny":[3.752,3.759,4.003,4.003,1.717,3.308,1.68,3.515,3.678]},{"isin":"IE000BUSGFL9","n":"iShares iBonds Dec 2029 Term € Corp Crossover UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2029,"sc":"12/2029","ter":0.2,"y":[4.79,4.84,4.95,4.95,5.03,4.94,5.02,5.02,5.06],"ny":[3.397,3.434,3.515,3.515,3.574,3.508,3.567,3.567,3.596]},{"isin":"LU3152892629","n":"Xtrackers II Target Maturity Sept 2036 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2036,"sc":"09/2036","ter":0.12,"y":[4.5,4.6,4.7,4.7,4.29,4.67,4.67,4.65,4.69],"ny":[3.241,3.315,3.389,3.389,3.086,3.367,3.367,3.352,3.382]},{"isin":"IE000RQJBQI6","n":"iShares iBonds Dec 2036 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2036,"sc":"12/2036","ter":0.12,"y":[4.46,4.55,4.66,4.66,4.7,4.65,4.62,4.62,4.66],"ny":[3.212,3.278,3.36,3.36,3.389,3.352,3.33,3.33,3.36]},{"isin":"LU3152892546","n":"Xtrackers II Target Maturity Sept 2035 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2035,"sc":"09/2035","ter":0.12,"y":[4.46,4.56,4.66,4.66,4.54,4.63,2.55,4.61,4.65],"ny":[3.212,3.286,3.36,3.36,3.271,3.337,1.798,3.323,3.352]},{"isin":"IE000PWSK6H1","n":"iShares iBonds Dec 2037 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2037,"sc":"12/2037","ter":0.12,"y":[4.45,4.54,4.64,4.64,4.68,4.64,4.59,4.59,4.64],"ny":[3.204,3.271,3.345,3.345,3.374,3.345,3.308,3.308,3.345]},{"isin":"IE000WLR06P0","n":"iShares iBonds Dec 2035 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2035,"sc":"12/2035","ter":0.12,"y":[4.44,4.53,4.64,4.64,4.68,4.61,4.58,4.58,4.63],"ny":[3.197,3.263,3.345,3.345,3.374,3.323,3.3,3.3,3.337]},{"isin":"LU2809864619","n":"Xtrackers II Target Maturity Sept 2034 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2034,"sc":"09/2034","ter":0.12,"y":[4.4,4.51,4.59,4.59,4.42,4.57,4.55,4.55,4.59],"ny":[3.167,3.249,3.308,3.308,3.182,3.293,3.278,3.278,3.308]},{"isin":"IE000SBJO6L2","n":"iShares iBonds Dec 2034 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2034,"sc":"12/2034","ter":0.12,"y":[4.38,4.48,4.56,4.56,4.6,4.53,4.5,4.5,4.54],"ny":[3.152,3.226,3.286,3.286,3.315,3.263,3.241,3.241,3.271]},{"isin":"LU2673523051","n":"Xtrackers II Target Maturity Sept 2033 EUR Corporate Bond UCITS ETF 1C","em":"DWS","t":"Corp","p":"Acc","a":2033,"sc":"09/2033","ter":0.12,"y":[4.35,4.46,4.54,4.54,4.13,4.5,2.51,4.47,4.51],"ny":[3.13,3.212,3.271,3.271,2.967,3.241,1.769,3.219,3.249]},{"isin":"LU2673523564","n":"Xtrackers II Target Maturity Sept 2033 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2033,"sc":"09/2033","ter":0.12,"y":[4.35,4.46,4.54,4.54,4.13,4.5,2.51,4.47,4.51],"ny":[3.13,3.212,3.271,3.271,2.967,3.241,1.769,3.219,3.249]},{"isin":"IE000E0NL9T3","n":"iShares iBonds Dec 2033 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2033,"sc":"12/2033","ter":0.12,"y":[4.32,4.44,4.51,4.51,4.54,4.46,4.43,4.43,4.47],"ny":[3.108,3.197,3.249,3.249,3.271,3.212,3.189,3.189,3.219]},{"isin":"LU2809864452","n":"Xtrackers II Target Maturity Sept 2032 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2032,"sc":"09/2032","ter":0.12,"y":[4.26,4.37,4.44,4.44,4.33,4.4,4.37,4.38,4.41],"ny":[3.064,3.145,3.197,3.197,3.115,3.167,3.145,3.152,3.175]},{"isin":"IE0003HV7CS6","n":"iShares iBonds Dec 2028 Term € Corp Crossover UCITS ETF","em":"iShares","t":"Corp","p":"Acc","a":2028,"sc":"12/2028","ter":0.2,"y":[4.11,4.18,4.32,4.32,4.42,4.36,4.45,4.45,4.48],"ny":[2.893,2.945,3.049,3.049,3.123,3.078,3.145,3.145,3.167]},{"isin":"IE0000MR4GH9","n":"iShares iBonds Dec 2032 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2032,"sc":"12/2032","ter":0.12,"y":[4.22,4.33,4.39,4.39,4.43,4.34,4.3,4.3,4.35],"ny":[3.034,3.115,3.16,3.16,3.189,3.123,3.093,3.093,3.13]},{"isin":"LU3120976132","n":"Amundi Fixed Maturity 2030 Euro Government Bond Broad UCITS ETF Acc","em":"Amundi","t":"Govt","p":"Acc","a":2030,"sc":"12/2030","ter":0.09,"y":[3.59,3.48,3.49,3.62,3.66,3.66,3.66,3.62,3.65],"ny":[3.062,2.966,2.975,3.089,3.124,3.124,3.124,3.089,3.115]},{"isin":"IE000I2WYEU9","n":"iShares iBonds Dec 2031 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2031,"sc":"12/2031","ter":0.12,"y":[4.16,4.27,4.33,4.33,4.37,4.28,4.24,4.24,4.28],"ny":[2.99,3.071,3.115,3.115,3.145,3.078,3.049,3.049,3.078]},{"isin":"LU2823895763","n":"BNP PARIBAS EASY ESG ENHANCED EUR CORP BOND DECEMBER 2032 [UCITS ETF, D]","em":"BNP Paribas","t":"Corp","p":"Dist","a":2032,"sc":"12/2032","ter":0.12,"y":[null,4.31,4.3,4.3,4.35,4.27,4.24,4.24,4.27],"ny":[null,3.101,3.093,3.093,3.13,3.071,3.049,3.049,3.071]},{"isin":"LU2823895847","n":"BNP PARIBAS EASY ESG ENHANCED EUR CORP BOND DECEMBER 2032 [UCITS ETF, C]","em":"BNP Paribas","t":"Corp","p":"Acc","a":2032,"sc":"12/2032","ter":0.12,"y":[null,4.31,4.3,4.3,4.35,4.27,4.24,4.24,4.27],"ny":[null,3.101,3.093,3.093,3.13,3.071,3.049,3.049,3.071]},{"isin":"LU2673523135","n":"Xtrackers II Target Maturity Sept 2031 EUR Corporate Bond UCITS ETF 1C","em":"DWS","t":"Corp","p":"Acc","a":2031,"sc":"09/2031","ter":0.12,"y":[4.13,4.24,4.29,4.29,4.24,4.24,2.5,4.2,4.24],"ny":[2.967,3.049,3.086,3.086,3.049,3.049,1.761,3.019,3.049]},{"isin":"LU2673523481","n":"Xtrackers II Target Maturity Sept 2031 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2031,"sc":"09/2031","ter":0.12,"y":[4.13,4.24,4.29,4.29,4.24,4.24,2.5,4.2,4.24],"ny":[2.967,3.049,3.086,3.086,3.049,3.049,1.761,3.019,3.049]},{"isin":"IE000I25S1V5","n":"Invesco BulletShares 2030 EUR Corporate Bond UCITS ETF Acc","em":"Invesco","t":"Corp","p":"Acc","a":2030,"sc":"12/2030","ter":0.1,"y":[null,4.04,4.04,4.04,4.04,4.21,4.21,4.21,4.21],"ny":[null,2.916,2.916,2.916,2.916,3.041,3.041,3.041,3.041]},{"isin":"IE000W6YTDH7","n":"Invesco BulletShares 2030 EUR Corporate Bond UCITS ETF Dist","em":"Invesco","t":"Corp","p":"Dist","a":2030,"sc":"12/2030","ter":0.1,"y":[null,4.04,4.04,4.04,4.04,4.21,4.21,4.21,4.21],"ny":[null,2.916,2.916,2.916,2.916,3.041,3.041,3.041,3.041]},{"isin":"LU2872291781","n":"Amundi Fixed Maturity 2029 Euro Government Bond Broad UCITS ETF Acc","em":"Amundi","t":"Govt","p":"Acc","a":2029,"sc":"12/2029","ter":0.09,"y":[3.52,3.41,3.42,3.55,3.58,3.57,3.57,3.53,3.56],"ny":[3.001,2.905,2.914,3.027,3.054,3.045,3.045,3.01,3.036]},{"isin":"LU0484969463","n":"Xtrackers II Target Maturity Sept 2029 Italy and Spain Government Bond UCITS ETF 1C","em":"DWS","t":"Govt","p":"Acc","a":2029,"sc":"09/2029","ter":0.12,"y":[3.43,3.56,3.56,3.56,3.58,3.52,2.58,3.47,3.51],"ny":[2.896,3.01,3.01,3.01,3.027,2.975,2.152,2.931,2.966]},{"isin":"IE000LX17BP9","n":"iShares iBonds Dec 2030 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2030,"sc":"12/2030","ter":0.12,"y":[4.0,4.11,4.15,4.15,4.2,4.11,4.07,4.07,4.1],"ny":[2.871,2.953,2.982,2.982,3.019,2.953,2.923,2.923,2.945]},{"isin":"LU2809864296","n":"Xtrackers II Target Maturity Sept 2030 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2030,"sc":"09/2030","ter":0.12,"y":[4.0,4.11,4.14,4.14,4.02,4.1,4.04,4.06,4.09],"ny":[2.871,2.953,2.975,2.975,2.886,2.945,2.901,2.916,2.938]},{"isin":"LU2780871666","n":"Amundi Fixed Maturity 2028 Euro Government Bond Yield + UCITS ETF Dist","em":"Amundi","t":"Govt","p":"Dist","a":2028,"sc":"12/2028","ter":0.09,"y":[3.41,3.31,3.32,3.43,3.46,3.41,3.41,3.37,3.41],"ny":[2.905,2.818,2.826,2.923,2.949,2.905,2.905,2.87,2.905]},{"isin":"IE000Q2EQ5K8","n":"iShares iBonds Dec 2028 Term € Italy Govt Bond UCITS ETF","em":"iShares","t":"Govt","p":"Dist","a":2028,"sc":"12/2028","ter":0.12,"y":[3.4,3.52,3.5,3.5,3.51,3.45,3.47,3.47,3.42],"ny":[2.87,2.975,2.958,2.958,2.966,2.914,2.931,2.931,2.887]},{"isin":"IE000P5IB8I8","n":"Invesco BulletShares 2029 EUR Corporate Bond UCITS ETF Acc","em":"Invesco","t":"Corp","p":"Acc","a":2029,"sc":"12/2029","ter":0.1,"y":[null,3.84,3.84,3.84,3.84,3.98,3.98,3.98,3.98],"ny":[null,2.768,2.768,2.768,2.768,2.871,2.871,2.871,2.871]},{"isin":"IE000ZC4C5Q1","n":"Invesco BulletShares 2029 EUR Corporate Bond UCITS ETF Dist","em":"Invesco","t":"Corp","p":"Dist","a":2029,"sc":"12/2029","ter":0.1,"y":[null,3.84,3.84,3.84,3.84,3.98,3.98,3.98,3.98],"ny":[null,2.768,2.768,2.768,2.768,2.871,2.871,2.871,2.871]},{"isin":"LU2780871310","n":"Amundi Fixed Maturity 2028 Euro Government Bond Broad UCITS ETF Acc","em":"Amundi","t":"Govt","p":"Acc","a":2028,"sc":"12/2028","ter":0.09,"y":[3.37,3.28,3.28,3.39,3.41,3.38,3.38,3.34,3.34],"ny":[2.87,2.791,2.791,2.888,2.905,2.879,2.879,2.844,2.844]},{"isin":"LU2780871401","n":"Amundi Fixed Maturity 2028 Euro Government Bond Broad UCITS ETF Dist","em":"Amundi","t":"Govt","p":"Dist","a":2028,"sc":"12/2028","ter":0.09,"y":[3.37,3.28,3.28,3.39,3.41,3.38,3.38,3.34,3.34],"ny":[2.87,2.791,2.791,2.888,2.905,2.879,2.879,2.844,2.844]},{"isin":"IE000IHURBR0","n":"iShares iBonds Dec 2029 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2029,"sc":"12/2029","ter":0.12,"y":[3.85,3.95,3.98,3.98,4.01,3.92,3.88,3.88,3.9],"ny":[2.76,2.834,2.856,2.856,2.879,2.812,2.782,2.782,2.797]},{"isin":"LU2673522913","n":"Xtrackers II Target Maturity Sept 2029 EUR Corporate Bond UCITS ETF 1C","em":"DWS","t":"Corp","p":"Acc","a":2029,"sc":"09/2029","ter":0.12,"y":[3.81,3.91,3.93,3.93,3.76,3.88,2.53,3.85,3.87],"ny":[2.731,2.805,2.819,2.819,2.694,2.782,1.783,2.76,2.775]},{"isin":"LU2673523309","n":"Xtrackers II Target Maturity Sept 2029 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2029,"sc":"09/2029","ter":0.12,"y":[3.81,3.91,3.93,3.93,3.76,3.88,2.53,3.85,3.87],"ny":[2.731,2.805,2.819,2.819,2.694,2.782,1.783,2.76,2.775]},{"isin":"IE00079EUF59","n":"Invesco BulletShares 2028 EUR Corporate Bond UCITS ETF Acc","em":"Invesco","t":"Corp","p":"Acc","a":2028,"sc":"12/2028","ter":0.1,"y":[null,3.67,3.67,3.67,3.67,3.83,3.83,3.83,3.83],"ny":[null,2.642,2.642,2.642,2.642,2.76,2.76,2.76,2.76]},{"isin":"IE000LKGEZQ6","n":"Invesco BulletShares 2028 EUR Corporate Bond UCITS ETF Dist","em":"Invesco","t":"Corp","p":"Dist","a":2028,"sc":"12/2028","ter":0.1,"y":[null,3.67,3.67,3.67,3.67,3.83,3.83,3.83,3.83],"ny":[null,2.642,2.642,2.642,2.642,2.76,2.76,2.76,2.76]},{"isin":"LU2823896738","n":"BNP PARIBAS EASY ESG ENHANCED EUR CORP BOND DECEMBER 2029 [UCITS ETF, D]","em":"BNP Paribas","t":"Corp","p":"Dist","a":2029,"sc":"12/2029","ter":0.12,"y":[null,3.93,3.9,3.9,3.95,3.87,3.83,3.83,3.85],"ny":[null,2.819,2.797,2.797,2.834,2.775,2.745,2.745,2.76]},{"isin":"LU2823896811","n":"BNP PARIBAS EASY ESG ENHANCED EUR CORP BOND DECEMBER 2029 [UCITS ETF, C]","em":"BNP Paribas","t":"Corp","p":"Acc","a":2029,"sc":"12/2029","ter":0.12,"y":[null,3.93,3.9,3.9,3.95,3.87,3.83,3.83,3.85],"ny":[null,2.819,2.797,2.797,2.834,2.775,2.745,2.745,2.76]},{"isin":"IE000264WWY0","n":"iShares iBonds Dec 2028 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2028,"sc":"12/2028","ter":0.12,"y":[3.65,3.74,3.75,3.75,3.79,3.72,3.71,3.71,3.73],"ny":[2.612,2.679,2.686,2.686,2.716,2.664,2.657,2.657,2.671]},{"isin":"LU2780872128","n":"Amundi Fixed Maturity 2027 Italy BTP Government Bond UCITS ETF Dist","em":"Amundi","t":"Govt","p":"Dist","a":2027,"sc":"12/2027","ter":0.09,"y":[3.12,3.05,3.06,3.12,3.12,3.07,3.07,3.05,3.13],"ny":[2.651,2.59,2.599,2.651,2.651,2.607,2.607,2.59,2.66]},{"isin":"LU2810185665","n":"Xtrackers II Target Maturity Sept 2028 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2028,"sc":"09/2028","ter":0.12,"y":[3.61,3.69,3.7,3.7,3.66,3.67,3.62,3.66,3.68],"ny":[2.583,2.642,2.649,2.649,2.62,2.627,2.59,2.62,2.634]},{"isin":"LU2872291435","n":"Amundi Fixed Maturity 2027 Euro Government Bond Broad UCITS ETF Acc","em":"Amundi","t":"Govt","p":"Acc","a":2027,"sc":"12/2027","ter":0.09,"y":[3.03,2.98,2.98,3.05,3.04,3.0,3.0,2.99,2.96],"ny":[2.572,2.529,2.529,2.59,2.581,2.546,2.546,2.538,2.511]},{"isin":"LU2780871823","n":"Amundi Fixed Maturity 2027 German Bund Government Bond UCITS ETF Dist","em":"Amundi","t":"Govt","p":"Dist","a":2027,"sc":"12/2027","ter":0.09,"y":[2.98,2.93,2.93,2.99,2.99,2.93,2.93,2.92,2.84],"ny":[2.529,2.485,2.485,2.538,2.538,2.485,2.485,2.476,2.406]},{"isin":"IE000LGHLQ71","n":"Invesco BulletShares 2027 EUR Corporate Bond UCITS ETF Acc","em":"Invesco","t":"Corp","p":"Acc","a":2027,"sc":"12/2027","ter":0.1,"y":[null,3.26,3.26,3.26,3.26,3.31,3.31,3.31,3.31],"ny":[null,2.338,2.338,2.338,2.338,2.375,2.375,2.375,2.375]},{"isin":"IE000XOS4OJ6","n":"Invesco BulletShares 2027 EUR Corporate Bond UCITS ETF Dist","em":"Invesco","t":"Corp","p":"Dist","a":2027,"sc":"12/2027","ter":0.1,"y":[null,3.26,3.26,3.26,3.26,3.31,3.31,3.31,3.31],"ny":[null,2.338,2.338,2.338,2.338,2.375,2.375,2.375,2.375]},{"isin":"IE000ZOI8OK5","n":"iShares iBonds Dec 2027 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Acc","a":2027,"sc":"12/2027","ter":0.12,"y":[3.25,3.28,3.28,3.28,3.31,3.28,3.32,3.32,3.33],"ny":[2.316,2.338,2.338,2.338,2.361,2.338,2.368,2.368,2.375]},{"isin":"LU2673522830","n":"Xtrackers II Target Maturity Sept 2027 EUR Corporate Bond UCITS ETF 1C","em":"DWS","t":"Corp","p":"Acc","a":2027,"sc":"09/2027","ter":0.12,"y":[3.13,3.15,3.15,3.15,3.09,3.16,2.57,3.2,3.25],"ny":[2.227,2.242,2.242,2.242,2.198,2.25,1.813,2.279,2.316]},{"isin":"LU2673523218","n":"Xtrackers II Target Maturity Sept 2027 EUR Corporate Bond UCITS ETF 1D","em":"DWS","t":"Corp","p":"Dist","a":2027,"sc":"09/2027","ter":0.12,"y":[3.13,3.15,3.15,3.15,3.09,3.16,2.57,3.2,3.25],"ny":[2.227,2.242,2.242,2.242,2.198,2.25,1.813,2.279,2.316]},{"isin":"IE000LZ7BZW8","n":"iShares iBonds Dec 2026 Term € Italy Govt Bond UCITS ETF","em":"iShares","t":"Govt","p":"Dist","a":2026,"sc":"12/2026","ter":0.12,"y":[2.67,2.67,2.65,2.65,2.66,2.7,2.7,2.7,2.72],"ny":[2.231,2.231,2.214,2.214,2.223,2.258,2.258,2.258,2.275]},{"isin":"LU2872291278","n":"Amundi Fixed Maturity 2026 Euro Government Bond Broad UCITS ETF Acc","em":"Amundi","t":"Govt","p":"Acc","a":2026,"sc":"12/2026","ter":0.09,"y":[2.61,2.59,2.58,2.74,2.49,2.63,2.63,2.93,2.61],"ny":[2.205,2.188,2.179,2.319,2.1,2.223,2.223,2.485,2.205]},{"isin":"IE0004QWOTD5","n":"Invesco BulletShares 2026 EUR Corporate Bond UCITS ETF Acc","em":"Invesco","t":"Corp","p":"Acc","a":2026,"sc":"12/2026","ter":0.1,"y":[null,2.93,2.93,2.93,2.93,2.94,2.94,2.94,2.94],"ny":[null,2.094,2.094,2.094,2.094,2.102,2.102,2.102,2.102]},{"isin":"IE000AYJ75E5","n":"Invesco BulletShares 2026 EUR Corporate Bond UCITS ETF Dist","em":"Invesco","t":"Corp","p":"Dist","a":2026,"sc":"12/2026","ter":0.1,"y":[null,2.93,2.93,2.93,2.93,2.94,2.94,2.94,2.94],"ny":[null,2.094,2.094,2.094,2.094,2.102,2.102,2.102,2.102]},{"isin":"IE000SIZJ2B2","n":"iShares iBonds Dec 2026 Term € Corp UCITS ETF","em":"iShares","t":"Corp","p":"Dist","a":2026,"sc":"12/2026","ter":0.12,"y":[2.75,2.77,2.75,2.75,2.77,2.77,2.78,2.78,2.83],"ny":[1.946,1.961,1.946,1.946,1.961,1.961,1.968,1.968,2.005]}],"avg":{"Corp":[2.948,3.01,3.065,3.065,2.87,3.0,2.554,3.005,3.041],"Govt":[2.722,2.69,2.689,2.758,2.752,2.737,2.669,2.739,2.721]},"curva":{"Corp":{"2026":2.07,"2027":2.731,"2028":2.799,"2029":2.901,"2030":2.991,"2031":3.059,"2032":3.112,"2033":3.239,"2034":3.289,"2035":3.345,"2036":3.371,"2037":3.345},"Govt":{"2026":2.24,"2027":2.526,"2028":2.87,"2029":3.001,"2030":3.115}},"aliq":{"Corp":0.26,"Govt":0.125}}</script>
+<script>
+const $ = id => document.getElementById(id);
+const barra = $("barra"), copertina = $("copertina");
+const riduciMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const capitoli = [...document.querySelectorAll(".capitolo")], voci = [...document.querySelectorAll(".indice a")];
+let inCoda = false;
+function aggiornaBarra() {
+  inCoda = false;
+  const y = scrollY, hc = copertina.offsetHeight, hb = barra.offsetHeight, soglia = hb + 40;
+  if (!riduciMovimento) copertina.style.setProperty("--p", Math.min(1, y / hc).toFixed(3));
+  barra.classList.toggle("compatta", y > hc - hb * 2);
+  const max = document.documentElement.scrollHeight - innerHeight;
+  let cap = null;
+  for (const c of capitoli) if (c.getBoundingClientRect().top <= soglia) cap = c;
+  if (y >= max - 2) cap = capitoli.at(-1);  // in fondo l'ultimo capitolo non arriva in cima
+  voci.forEach(a => a.classList.toggle("attivo", !!cap && a.getAttribute("href") === "#" + cap.id));
+  barra.dataset.parte = cap ? cap.dataset.parte : "";
+  barra.style.setProperty("--avanzamento", max > 0 ? Math.min(1, y / max).toFixed(4) : 0);
+}
+addEventListener("scroll", () => { if (!inCoda) { inCoda = true; requestAnimationFrame(aggiornaBarra); } }, {passive: true});
+addEventListener("resize", aggiornaBarra);
+aggiornaBarra();
+
+addEventListener("keydown", e => { if (e.key === "Escape") mostraIndice(false); });
+
+$("tema").addEventListener("click", () => {
+  const r = document.documentElement, scuro = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = scuro ? "light" : "dark";
+  try { localStorage.theme = r.dataset.theme } catch {}
+});
+
+
+const D=JSON.parse($("dati").textContent), E=D.etfs;
+E.forEach(e=>{e.lordo=e.y.at(-1); e.net=(e.lordo-e.ter)*(1-D.aliq[e.t]); const n=e.a-D.base; e.b=n<=3?"0-3":n<=8?"4-8":"8+";});
+const pc=x=>x.toFixed(2).replace(".",",")+"%";
+const S={p:"",t:"",b:"",q:"",k:"net",asc:false,pg:0,n:10};
+function filtrati(){const q=S.q.toLowerCase();
+  return E.filter(e=>(!S.p||e.p===S.p)&&(!S.t||e.t===S.t)&&(!S.b||e.b===S.b)&&(!q||(e.n+" "+e.em).toLowerCase().includes(q)))
+   .sort((a,b)=>{const x=a[S.k],y=b[S.k],r=typeof x==="string"?x.localeCompare(y):x-y; return S.asc?r:-r;});}
+const CT={Corp:"#e0a93b",Govt:"#6fcdbd"}, PAL=["#e0a93b","#6fcdbd","#e8765a","#9db4f0","#c9a8e8","#a6d96a","#f4a6c0","#d9d9d9"];
+const GR="rgba(255,255,255,.1)", base={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:"#d9ccaf",family:"ui-monospace,Consolas,monospace",size:11},
+  margin:{l:58,r:18,t:14,b:60},legend:{orientation:"h",y:-.18},hovermode:"x unified",hoverlabel:{font:{size:11}}};
+const cfg={responsive:true,displaylogo:false,scrollZoom:true,modeBarButtonsToRemove:["select2d","lasso2d"]};
+function plot(id,tr,o){const L={...base,...o,xaxis:{gridcolor:GR,...(o.xaxis||{})},yaxis:{gridcolor:GR,ticksuffix:"%",tickformat:".2f",zeroline:false,...(o.yaxis||{})}};
+  if(!tr.length)L.annotations=[{text:"Nessun dato con questi filtri",showarrow:false,x:.5,y:.5,xref:"paper",yref:"paper"}];
+  Plotly.react(id,tr,L,cfg);}
+function grafici(L){
+  const top=L.slice().sort((a,b)=>b.net-a.net).slice(0,8);
+  plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:2.2},marker:{size:6},hovertemplate:"%{y:.2f}%"})),
+    {xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}});
+  const med=["Corp","Govt"].map(t=>{const f=L.filter(e=>e.t===t&&!e.y.includes(null)); if(!f.length)return null;
+    return {x:D.iso,y:D.iso.map((_,i)=>f.reduce((s,e)=>s+e.ny[i],0)/f.length),type:"scatter",mode:"lines+markers",name:t+" (media di "+f.length+" ETF)",line:{color:CT[t],width:2.4},hovertemplate:"%{y:.2f}%"};}).filter(Boolean);
+  plot("g-avg",med,{xaxis:{type:"date",tickformat:"%d/%m"}});
+  const tr=[]; for(const t of ["Corp","Govt"]){const f=L.filter(e=>e.t===t); if(!f.length)continue;
+    tr.push({x:f.map(e=>e.a),y:f.map(e=>e.net),text:f.map(e=>e.n+" ("+e.p+")"),type:"scatter",mode:"markers",name:t+" ETF",marker:{color:CT[t],size:8,opacity:.5},hovertemplate:"%{text}<br>%{y:.2f}%<extra></extra>"});
+    const m={}; f.forEach(e=>(m[e.a]??=[]).push(e.net)); const ys=Object.keys(m).sort();
+    tr.push({x:ys.map(Number),y:ys.map(a=>m[a].reduce((x,y)=>x+y)/m[a].length),type:"scatter",mode:"lines",name:t+" media",line:{color:CT[t],width:2.6},hovertemplate:"media %{y:.2f}%<extra></extra>"});}
+  plot("g-curva",tr,{hovermode:"closest",xaxis:{dtick:1,tickformat:"d"}});}
+function tabella(){const L=filtrati(), np=Math.max(1,Math.ceil(L.length/S.n)); S.pg=Math.min(S.pg,np-1);
+  $("tab").tBodies[0].innerHTML=L.slice(S.pg*S.n,(S.pg+1)*S.n).map((e,i)=>`<tr><td>${S.pg*S.n+i+1}</td><td>${e.n}</td><td>${e.em}</td><td><span class="badge ${e.t.toLowerCase()}">${e.t}</span></td><td>${e.p}</td><td>${e.sc}</td><td class="num">${pc(e.ter)}</td><td class="num">${pc(e.lordo)}</td><td class="num netto">${pc(e.net)}</td></tr>`).join("")||'<tr><td colspan="9">Nessun ETF con questi filtri.</td></tr>';
+  $("pag").textContent=`${L.length} ETF · pagina ${S.pg+1}/${np}`; $("prev").disabled=S.pg==0; $("next").disabled=S.pg>=np-1;
+  grafici(L);}
+document.querySelectorAll(".gruppo[data-f] button").forEach(b=>b.onclick=()=>{const g=b.parentNode; g.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x==b)); S[g.dataset.f]=b.dataset.v; S.pg=0; tabella();});
+$("f-cerca").oninput=e=>{S.q=e.target.value;S.pg=0;tabella();};
+$("f-righe").onchange=e=>{S.n=+e.target.value;S.pg=0;tabella();};
+$("prev").onclick=()=>{S.pg--;tabella();}; $("next").onclick=()=>{S.pg++;tabella();};
+document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k; S.asc=S.k==k?!S.asc:["n","em","t","p","a","ter"].includes(k); S.k=k;
+  document.querySelectorAll("th[data-k]").forEach(x=>{x.classList.toggle("on",x==th); x.classList.toggle("asc",x==th&&S.asc);}); tabella();});
+tabella();
+</script>
+
+</html>
