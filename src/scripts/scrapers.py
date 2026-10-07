@@ -13,7 +13,7 @@ from scripts.support import AMUNDI_URL, DWS_URL, INVESCO_URL, ISHARES_TABS, ISHA
 def amundi(page):
     # "Rendimento**" in scheda prodotto = BENCHMARK_LAST_INDEX_PRICE.nominalYield dell'API che la pagina lista chiama da sola
     with page.expect_response(lambda r: "ProductAPI/getProductsData" in r.url, timeout=90000) as resp:
-        page.goto(AMUNDI_URL)
+        page.goto(AMUNDI_URL, wait_until="domcontentloaded")
     isins = [p["productId"] for p in resp.value.json()["products"]]
     # stessa API, chiesta di nuovo con i campi che servono (la pagina lista non chiede DISTRIBUTION_POLICY)
     data = requests.post("https://www.amundietf.it/mapi/ProductAPI/getProductsData", headers=UA, json={
@@ -34,7 +34,7 @@ def amundi(page):
 def dws(page):
     # ponytail: entry gate DWS accettato una volta (Italia / retail, cookie non essenziali rifiutati), il contesto lo ricorda
     with page.expect_response(lambda r: "fundfinder/it-it/datatable" in r.url and '"filters":[{' in (r.request.post_data or ""), timeout=90000) as resp:
-        page.goto(DWS_URL)
+        page.goto(DWS_URL, wait_until="domcontentloaded")
         page.get_by_role("button", name="Non accetto").click()
         page.get_by_role("button", name="Accetta & continua").click()
     rows = []
@@ -58,7 +58,7 @@ def invesco(page):
     is_search = lambda r: "dng-api.invesco.com/product/search" in r.url and "BulletShares" in r.url
     is_listing = lambda r: "shareclasses?" in r.url and r.request.method == "POST"
     with page.expect_response(is_listing, timeout=90000) as listing, page.expect_response(is_search, timeout=90000) as search:
-        page.goto(INVESCO_URL)
+        page.goto(INVESCO_URL, wait_until="domcontentloaded")
     ter = {x["isin"]: x.get("terocf") for x in listing.value.json()}
     rows = []
     for doc in search.value.json()["response"]["docs"]:
@@ -138,11 +138,25 @@ def ishares():
     return rows
 
 
+def _try(fn, *args, retries=2):
+    """Esegue lo scraper di un emittente; ritenta, poi ritorna [] e segnala l'errore senza fermare gli altri."""
+    for n in range(1, retries + 1):
+        try:
+            return fn(*args)
+        except Exception as e:
+            print(f"ATTENZIONE {fn.__name__} fallito (tentativo {n}/{retries}): {type(e).__name__}: {str(e).splitlines()[0]}")
+    return []
+
+
 def scrape_all():
-    rows = ishares() + bnp()
+    rows = _try(ishares) + _try(bnp)
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_context(locale="it-IT", user_agent=UA["User-Agent"]).new_page()
-        rows += amundi(page) + dws(page) + invesco(page)
-        browser.close()
+        try:
+            page = browser.new_context(locale="it-IT", user_agent=UA["User-Agent"]).new_page()
+            page.set_default_navigation_timeout(90000)
+            for fn in (amundi, dws, invesco):
+                rows += _try(fn, page)
+        finally:
+            browser.close()
     return rows
