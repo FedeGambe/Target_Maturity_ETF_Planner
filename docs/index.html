@@ -234,6 +234,7 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
  <div class="gruppo" data-f="p"><span class="et">Proventi</span><button data-v="" class="on">Tutti</button><button data-v="Acc">Acc</button><button data-v="Dist">Dist</button></div>
  <div class="gruppo" data-f="t"><span class="et">Tipo</span><button data-v="" class="on">Tutti</button><button data-v="Corp">Corp</button><button data-v="Govt">Govt</button></div>
  <div class="gruppo" data-f="b"><span class="et">Scadenza</span><button data-v="" class="on">Tutte</button><button data-v="0-3">0–3 anni</button><button data-v="4-8">4–8 anni</button><button data-v="8+">oltre 8</button></div>
+ <div class="gruppo" data-f="r"><span class="et">Rolling</span><button data-v="" class="on">Inclusi</button><button data-v="no">Esclusi</button></div>
  <input id="f-cerca" type="search" placeholder="Cerca nome o emittente…" aria-label="Cerca">
 </div>
 
@@ -305,9 +306,9 @@ const it=s=>s.split("-").reverse().join("/"), v={ultimo:it(D.iso.at(-1)),primo:i
 document.querySelectorAll("[data-d]").forEach(s=>s.textContent=v[s.dataset.d]);
 E.forEach(e=>{e.lordo=e.y.at(-1); e.net=(e.lordo-e.ter)*(1-D.aliq[e.t]); const n=e.a-D.base; e.b=n<=3?"0-3":n<=8?"4-8":"8+";});
 const pc=x=>x.toFixed(2).replace(".",",")+"%";
-const S={p:"",t:"",b:"",q:"",k:"net",asc:false,pg:0,n:10};
+const S={p:"",t:"",b:"",q:"",r:"",k:"net",asc:false,pg:0,n:10};
 function filtrati(){const q=S.q.toLowerCase();
-  return E.filter(e=>(!S.p||e.p===S.p)&&(!S.t||e.t===S.t)&&(!S.b||e.b===S.b)&&(!q||(e.n+" "+e.em).toLowerCase().includes(q)))
+  return E.filter(e=>(!S.p||e.p===S.p)&&(!S.t||e.t===S.t)&&(!S.b||e.b===S.b)&&(!S.r||!/rolling/i.test(e.n))&&(!q||(e.n+" "+e.em).toLowerCase().includes(q)))
    .sort((a,b)=>{const x=a[S.k],y=b[S.k],r=typeof x==="string"?x.localeCompare(y):x-y; return S.asc?r:-r;});}
 const CT={Corp:"#f08a6e",Govt:"#8fc3e0"}, PAL=["#f08a6e","#8fc3e0","#e8765a","#9db4f0","#c9a8e8","#a6d96a","#f4a6c0","#d9d9d9"];
 const GR="rgba(255,255,255,.1)", base={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:"#d9ccaf",family:"ui-monospace,Consolas,monospace",size:11},
