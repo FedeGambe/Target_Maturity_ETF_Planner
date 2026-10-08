@@ -42,7 +42,13 @@ def main():
     else:
         log("FALLITO: nessun dato aggiunto")
         return notify("Estrazione fallita dopo 3 tentativi: controlla data/logs/yield_scraper.log")
-    run("git", "add", "data/yield_etf.csv", "data/rendimenti_etf.xlsx")
+    try:
+        sys.path.insert(0, str(ROOT / "src"))
+        from scripts import site
+        site.update()  # rigenera docs/dati.json
+    except Exception as e:
+        log(f"aggiornamento dati.json fallito: {e}")
+    run("git", "add", "data/yield_etf.csv", "data/rendimenti_etf.xlsx", "docs/dati.json")
     c = run("git", "commit", "-m", f"Aggiorna yield_etf {datetime.now():%d/%m/%Y}")
     p = run("git", "push") if c.returncode == 0 else c
     log("OK, dati su GitHub" if p.returncode == 0 else f"dati estratti ma commit/push falliti: {(p.stderr or p.stdout).strip()[:200]}")
