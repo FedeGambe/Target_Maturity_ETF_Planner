@@ -182,37 +182,48 @@ figure svg{display:block; width:100%; height:auto}
 figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
 .leg{display:flex; flex-wrap:wrap; gap:6px 16px; padding:8px 12px 10px; font:600 .72rem/1.3 var(--f-data); color:#d9ccaf}
 .leg i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px}
-/* COVER MOBILE (telefono, fino a 700px): la cover non è a tutto schermo.
-   Con i due livelli (img/cover_sfondo.svg + <img class="soggetto" src="img/cover_soggetto.svg">): il fondo copre tutta la cover, il titolo sta sul fondo,
-   il soggetto parte sotto il titolo, testo introduttivo e tag si appoggiano alla parte bassa del soggetto su una sfumatura. Niente logo in basso a destra.
-   Senza livelli: titolo sul colore della cover, poi la cover orizzontale con sopra testo e tag. */
+/* COVER A DUE LIVELLI: img/cover_sfondo.svg riempie la cover (fondo continuo, anche dietro ai testi);
+   <img class="soggetto" src="img/cover_soggetto.svg"> è il soggetto (classe "largo" se è una striscia a tutta larghezza: si tagliano i lati).
+   Desktop: testi in alto, il soggetto parte da metà schermo (o dopo i testi, se sono più lunghi) e arriva in fondo.
+   Telefono (fino a 700px): la cover non è a tutto schermo; solo il titolo sta prima della grafica, testo introduttivo e tag stanno sopra
+   la parte bassa del soggetto su una sfumatura del colore di fondo. Niente logo in basso a destra.
+   Senza i due livelli si usa la cover orizzontale/verticale intera (.bauhaus). */
 .copertina .soggetto{display:none}
+.copertina:has(.soggetto){background:var(--cover) url("img/cover_sfondo.svg") 50% 100% / cover no-repeat}
+.copertina:has(.soggetto) .bauhaus{display:none}
+@media (min-width:701px){
+  .copertina:has(.soggetto){display:flex; flex-direction:column; justify-content:flex-start}
+  .copertina:has(.soggetto) .slide-testa{flex:none; min-height:50%; box-sizing:border-box; padding-right:var(--margine); padding-bottom:28px}
+  .copertina .soggetto{display:block; flex:1 1 0; min-height:0; width:100%; box-sizing:border-box; padding:0 var(--margine);
+    object-fit:contain; object-position:50% 100%; position:relative; z-index:0}
+  .copertina .soggetto.largo{object-fit:cover; padding:0}
+}
 @media (max-width:700px){
   .copertina{display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto 34vw auto auto; align-content:start;
-    height:auto; min-height:0}
+    height:auto; min-height:0; --h-sogg:min(72vw, 420px)}
+  .copertina:has(.soggetto.largo){--h-sogg:min(78vw, 440px)}
   .copertina > .slide-testa, .copertina > picture{display:contents}
   .copertina h1, .slide-testa h1{grid-row:1; grid-column:1; position:relative; z-index:2; margin:0; padding:calc(var(--barra) + 22px) var(--margine) 0;
     font-size:clamp(2rem,9vw,2.5rem); line-height:1; max-width:none; transform:none}
   .copertina .sottotitolo{grid-row:3; grid-column:1; position:relative; z-index:2; margin:0; padding:0 var(--margine); font-size:1rem; line-height:1.5;
     text-shadow:0 1px 10px color-mix(in srgb, var(--cover) 70%, transparent)}
   .copertina .tags{grid-row:4; grid-column:1; position:relative; z-index:2; margin:0; padding:14px var(--margine) 26px}
+  .copertina > .diciture{grid-row:5; grid-column:1}
+  /* senza livelli: cover orizzontale ritagliata 16:7 */
   .copertina .bauhaus{grid-row:2 / 5; grid-column:1; display:block; inset:0 0 auto; width:100%; height:auto; aspect-ratio:16 / 7; object-fit:cover; object-position:50% 100%}
   .copertina .bauhaus-v{display:none}
   .copertina::after{content:""; grid-row:3 / 5; grid-column:1; position:absolute; inset:-48px 0 0; z-index:1; pointer-events:none;
     background:linear-gradient(to bottom, transparent, color-mix(in srgb, var(--cover) 72%, transparent) 48px, color-mix(in srgb, var(--cover) 94%, transparent) calc(48px + 16vw), var(--cover))}
-  .copertina > .diciture{grid-row:5; grid-column:1}
-
   /* con i due livelli */
-  .copertina:has(.soggetto){grid-template-rows:auto auto auto auto;
-    background:var(--cover) url("img/cover_sfondo.svg") 50% 100% / cover no-repeat}
+  .copertina:has(.soggetto){grid-template-rows:auto auto auto auto}
   .copertina:has(.soggetto) .bauhaus, .copertina:has(.soggetto)::after{display:none}
-  .copertina:has(.soggetto) h1{padding-bottom:20px}
-  .copertina .soggetto{grid-row:2; grid-column:1; display:block; position:relative; z-index:1; width:100%;
-    height:auto; max-height:min(64vw, 380px); object-fit:contain; object-position:50% 100%}
-  .copertina .soggetto.largo{height:min(56vw, 340px); max-height:none; object-fit:cover}  /* soggetti a tutta larghezza (strisce): si tagliano i lati */
-  .copertina:has(.soggetto) .sottotitolo{grid-row:3; margin-top:-56px; padding-top:44px;
-    background:linear-gradient(to bottom, transparent, color-mix(in srgb, var(--cover) 80%, transparent) 44px)}
-  .copertina:has(.soggetto) .tags{grid-row:4; background:color-mix(in srgb, var(--cover) 80%, transparent)}
+  .copertina:has(.soggetto) h1{padding-bottom:18px}
+  .copertina .soggetto{grid-row:2; grid-column:1; display:block; position:relative; z-index:1; width:100%; height:var(--h-sogg);
+    object-fit:contain; object-position:50% 100%}
+  .copertina .soggetto.largo{object-fit:cover}
+  .copertina:has(.soggetto) .sottotitolo{margin-top:calc(var(--h-sogg) * -.35); padding-top:52px;
+    background:linear-gradient(to bottom, transparent, color-mix(in srgb, var(--cover) 84%, transparent) 52px)}
+  .copertina:has(.soggetto) .tags{background:color-mix(in srgb, var(--cover) 84%, transparent)}
 
   .logo-cover{display:none}
   .solo-largo{display:none}
@@ -220,7 +231,7 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
   .bottone-barra{padding:7px 10px; letter-spacing:.05em}
   footer{overflow-wrap:anywhere}
 }
-/* /COVER MOBILE */
+/* /COVER A DUE LIVELLI */
 </style>
 <script>try{document.documentElement.dataset.theme=localStorage.theme||"dark"}catch{document.documentElement.dataset.theme="dark"}</script>
 
