@@ -224,6 +224,11 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
   .copertina:has(.soggetto) .sottotitolo{margin-top:calc(var(--h-sogg) * -.35); padding-top:52px;
     background:linear-gradient(to bottom, transparent, color-mix(in srgb, var(--cover) 84%, transparent) 52px)}
   .copertina:has(.soggetto) .tags{background:color-mix(in srgb, var(--cover) 84%, transparent)}
+  /* strisce a tutta larghezza: la grafica passa dietro a testo e tag e arriva al bordo inferiore della cover */
+  .copertina:has(.soggetto.largo){grid-template-rows:auto calc(var(--h-sogg) * .62) auto auto}
+  .copertina .soggetto.largo{grid-row:2 / 5; height:100%; min-height:var(--h-sogg); align-self:stretch}
+  .copertina:has(.soggetto.largo) .sottotitolo{grid-row:3; margin-top:0}
+  .copertina:has(.soggetto.largo) .tags{grid-row:4}
 
   .logo-cover{display:none}
   .solo-largo{display:none}
