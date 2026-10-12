@@ -50,7 +50,8 @@ def main():
         log(f"aggiornamento dati.json fallito: {e}")
     run("git", "add", "data/yield_etf.csv", "data/rendimenti_etf.xlsx", "docs/dati.json")
     c = run("git", "commit", "-m", f"Aggiorna yield_etf {datetime.now():%d/%m/%Y}")
-    p = run("git", "push") if c.returncode == 0 else c
+    p = (run("git", "pull", "--rebase", "--autostash") if c.returncode == 0 else c)
+    p = run("git", "push") if p.returncode == 0 else p
     log("OK, dati su GitHub" if p.returncode == 0 else f"dati estratti ma commit/push falliti: {(p.stderr or p.stdout).strip()[:200]}")
     if p.returncode != 0:
         notify("Dati estratti ma commit/push su GitHub falliti: vedi log")
