@@ -18,8 +18,8 @@ def main():
             for issuer, name, isin, use, ter, ytm, as_of, coupon, nav, nav_date in scrape_all()]
     if HISTORY.exists():  # estrazione incompleta (emittente caduto): non sporcare lo storico, il job ritenta
         with open(HISTORY, encoding="utf-8-sig") as f:
-            dates = [r[0] for r in csv.reader(f, delimiter=";")][1:]
-        prev = dates.count(dates[-1]) if dates else 0
+            hist = list(csv.reader(f, delimiter=";"))[1:]
+        prev = len({r[3] for r in hist if r[0] == hist[-1][0]}) if hist else 0  # ISIN distinti: due giri nello stesso giorno non raddoppiano
         if len(rows) < prev - 2:  # tolleranza: un ETF scaduto sparisce dai siti
             sys.exit(f"ERRORE estrazione incompleta: {len(rows)} ETF contro {prev} dell'ultima volta, storico non aggiornato")
     for r in rows:
