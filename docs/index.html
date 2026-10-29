@@ -14,7 +14,7 @@
 :root{
   --barra:60px;
   --cover:#3d8fc4;  /* --cover: colore di fondo della cover, usato dai riquadri scuri */
-  --g1:#fff3dc; --g2:#e9c9a0; --g3:#e2d6bf; --bg:#f4efe6; --surface:#fbf8f2; --ink:#1c1b19; --ink-2:#44413a; --ink-3:#6b665c; --line:#d9d1c0;
+  --g1:#ffffff; --g2:#f6e9d9; --g3:#fbfaf7; --bg:#fbfaf7; --surface:#ffffff; --ink:#1c1b19; --ink-2:#44413a; --ink-3:#6b665c; --line:#e6e1d6;
   --c1:#1d5f8c; --c1-ink:#1d5f8c; --c2:#d6452a; --c2-ink:#a8301a; --argento:#c9bda3;
   --accent:var(--c1-ink); --accent-soft:#dcebf5; --c2-soft:#f8ddd5;
   --grigio:#6b665c; --grigio-linea:#a39c8b;
@@ -33,7 +33,7 @@ html{scroll-behavior:smooth; scroll-padding-top:calc(var(--barra) + var(--h-filt
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
 body{margin:0; color:var(--ink); font:16px/1.6 var(--f-body); min-height:100vh;
   background:radial-gradient(900px 600px at 10% 0%,var(--g1),transparent 70%),radial-gradient(900px 700px at 100% 100%,var(--g2),transparent 70%),var(--g3); background-attachment:fixed}
-body::before{content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.55;
+body::before{content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.22;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .45 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
 .impianto{max-width:1320px; margin:0 auto; padding-inline:20px; padding-block:40px 80px;
   display:grid; grid-template-columns:minmax(0,1fr); gap:0 48px}
@@ -109,7 +109,7 @@ ul{padding-left:22px} li{margin:8px 0}
 .intro-testo{padding-bottom:48px; border-bottom:3px solid var(--ink)}
 .occhiello{display:flex; gap:12px; align-items:center; margin:0 0 24px; font:600 .72rem/1 var(--f-data); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
 .occhiello::before{content:""; flex:none; width:32px; height:3px; background:var(--c2)}
-.intro h1{font-size:clamp(2.6rem,8.6vw,7.4rem); line-height:.95; letter-spacing:-.04em; text-wrap:pretty}
+.intro h1{font-size:clamp(2.4rem,7vw,6rem); line-height:.95; letter-spacing:-.04em; text-wrap:pretty}
 .intro h1.adatta{white-space:nowrap; text-wrap:nowrap}
 .intro .sottotitolo{font-size:clamp(1.05rem,1.6vw,1.25rem); line-height:1.5; color:var(--ink-2); margin:24px 0 0}
 .intro .sottotitolo p{margin:0} .intro .sottotitolo strong{color:var(--ink)}
@@ -124,7 +124,7 @@ tr:last-child td{border-bottom:0}
 th{font:600 .72rem/1.4 var(--f-data); color:var(--ink-3); background:var(--bg); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap}
 tbody tr:hover td{background:color-mix(in srgb, var(--accent-soft) 55%, transparent)}
 .parte-b tbody tr:hover td{background:color-mix(in srgb, var(--c2-soft) 55%, transparent)}
-figure{margin:20px 0 8px; background:var(--cover); border-radius:6px; padding:8px; min-width:0; overflow:hidden}  /* cornice scura in entrambi i temi */
+figure{margin:20px 0 8px; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px; min-width:0; overflow:hidden}  /* chiaro col tema chiaro, vetro scuro col tema scuro */
 .conclusione{border-left:4px solid var(--c2); background:var(--surface); padding:6px 18px; border-radius:0 6px 6px 0; margin:20px 0}
 footer{margin-top:80px; padding-top:18px; border-top:3px solid var(--ink); font:600 .78rem/1.6 var(--f-data); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3)}
 footer a{color:inherit} footer a:hover{color:var(--c2)}
@@ -137,8 +137,8 @@ footer a{color:inherit} footer a:hover{color:var(--c2)}
 .barra-filtri .titolo-filtri b{color:var(--c2-ink)}
 .plot{width:100%; height:430px} #g-avg{height:340px}
 @media (max-width:560px){ .plot{height:360px} }
-figure{background:#ffffff03; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); border:1px solid #ffffff1f; border-radius:10px; padding:10px 12px 6px}
-:root:not([data-theme="dark"]) figure{background:#0d1a2bd9}  /* tema chiaro: i grafici hanno testi chiari, il vetro deve restare scuro */
+figure{border-radius:10px; padding:10px 12px 6px}
+:root[data-theme="dark"] figure{background:#ffffff03; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); border-color:#ffffff1f}
 .modebar-container{top:6px!important; right:8px!important}
 .modebar{display:flex!important; flex-wrap:nowrap!important; width:auto!important; white-space:nowrap} .modebar-group{display:flex!important; float:none!important; padding-left:4px!important}
 
@@ -162,8 +162,8 @@ td.netto{font-weight:700; color:var(--c1-ink)}
 .pager label{margin-left:auto}
 .pager button:disabled{opacity:.35; cursor:default}
 figure svg{display:block; width:100%; height:auto}
-figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
-.leg{display:flex; flex-wrap:wrap; gap:6px 16px; padding:8px 12px 10px; font:600 .72rem/1.3 var(--f-data); color:#d9ccaf}
+figure text{fill:var(--ink-3); font:11px ui-monospace,Consolas,monospace}
+.leg{display:flex; flex-wrap:wrap; gap:6px 16px; padding:8px 12px 10px; font:600 .72rem/1.3 var(--f-data); color:var(--ink-2)}
 .leg i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px}
 @media (max-width:700px){
   .azioni{gap:6px}
@@ -171,7 +171,7 @@ figure text{fill:#b9ae95; font:11px ui-monospace,Consolas,monospace}
   footer{overflow-wrap:anywhere}
 }
 </style>
-<script>try{document.documentElement.dataset.theme=localStorage.theme||"dark"}catch{document.documentElement.dataset.theme="dark"}</script>
+<script>try{document.documentElement.dataset.theme=localStorage.theme||"light"}catch{document.documentElement.dataset.theme="light"}</script>
 
 <header class="barra" id="barra">
   <div class="dove">
@@ -290,14 +290,19 @@ const S={p:"",t:"",b:"",q:"",r:"",k:"net",asc:false,pg:0,n:10};
 function filtrati(){const q=S.q.toLowerCase();
   return E.filter(e=>(!S.p||e.p===S.p)&&(!S.t||e.t===S.t)&&(!S.b||e.b===S.b)&&(!S.r||!/rolling/i.test(e.n))&&(!q||(e.n+" "+e.em).toLowerCase().includes(q)))
    .sort((a,b)=>{const x=a[S.k],y=b[S.k],r=typeof x==="string"?x.localeCompare(y):x-y; return S.asc?r:-r;});}
-const CT={Corp:"#f08a6e",Govt:"#8fc3e0"}, PAL=["#f08a6e","#8fc3e0","#e8765a","#9db4f0","#c9a8e8","#a6d96a","#f4a6c0","#d9d9d9"];
-const GR="rgba(255,255,255,.1)", base={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:"#d9ccaf",family:"ui-monospace,Consolas,monospace",size:11},
-  margin:{l:58,r:18,t:46,b:60},legend:{orientation:"h",y:-.18},modebar:{orientation:"h",bgcolor:"rgba(0,0,0,0)",color:"#9a9486",activecolor:"#efe9dc"},hovermode:"x unified",hoverlabel:{bgcolor:"#0a1018",bordercolor:"#efe9dc",namelength:-1,align:"left",font:{size:13,color:"#efe9dc",family:"ui-monospace,Consolas,monospace"}}};
+// Colori dei grafici dal tema: si rileggono a ogni disegno, il pulsante Tema ridisegna
+let CT, PAL, GR, base;
+function colori(){const v=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(), scuro=document.documentElement.dataset.theme==="dark";
+  PAL=scuro?["#f08a6e","#8fc3e0","#e8765a","#9db4f0","#c9a8e8","#a6d96a","#f4a6c0","#d9d9d9"]:["#d1492e","#1d6fa5","#e07b39","#4f63c9","#8a52bd","#3f8a22","#c84c80","#6b6b6b"];
+  CT={Corp:PAL[0],Govt:PAL[1]}; GR=scuro?"rgba(255,255,255,.1)":"rgba(0,0,0,.08)";
+  base={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:v("--ink-2"),family:"ui-monospace,Consolas,monospace",size:11},
+  margin:{l:58,r:18,t:46,b:60},legend:{orientation:"h",y:-.18},modebar:{orientation:"h",bgcolor:"rgba(0,0,0,0)",color:v("--ink-3"),activecolor:v("--ink")},hovermode:"x unified",hoverlabel:{bgcolor:v("--surface"),bordercolor:v("--ink"),namelength:-1,align:"left",font:{size:13,color:v("--ink"),family:"ui-monospace,Consolas,monospace"}}};}
 const cfg={responsive:true,displaylogo:false,displayModeBar:true,scrollZoom:false,modeBarButtonsToRemove:["select2d","lasso2d","zoomIn2d","zoomOut2d","autoScale2d"]};
 function plot(id,tr,o){const L={...base,...o,xaxis:{gridcolor:GR,...(o.xaxis||{})},yaxis:{gridcolor:GR,ticksuffix:"%",tickformat:".2f",zeroline:false,...(o.yaxis||{})}};
   if(!tr.length)L.annotations=[{text:"Nessun dato con questi filtri",showarrow:false,x:.5,y:.5,xref:"paper",yref:"paper"}];
   Plotly.react(id,tr,L,cfg);}
 function grafici(L){
+  colori();
   const top=L.slice().sort((a,b)=>b.net-a.net).slice(0,8);
   plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:2.2},marker:{size:6},hoverlabel:{bordercolor:PAL[i]},hovertemplate:"<b>%{fullData.name}</b><br>%{x|%d/%m/%Y}: %{y:.2f}%<extra></extra>"})),
     {hovermode:"closest",xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}});
@@ -320,6 +325,7 @@ $("prev").onclick=()=>{S.pg--;tabella();}; $("next").onclick=()=>{S.pg++;tabella
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k; S.asc=S.k==k?!S.asc:["n","em","t","p","a","ter"].includes(k); S.k=k;
   document.querySelectorAll("th[data-k]").forEach(x=>{x.classList.toggle("on",x==th); x.classList.toggle("asc",x==th&&S.asc);}); tabella();});
 tabella();
+$("tema").addEventListener("click", tabella);
 });
 
 // INTRO: titolo su una riga da bordo a bordo; se il font scende sotto i 44px (telefono) torna a capo normale
@@ -327,7 +333,7 @@ const h1 = document.querySelector(".intro h1");
 function adattaTitolo() {
   h1.classList.add("adatta"); h1.style.fontSize = "100px";
   const f = 100 * h1.clientWidth / h1.scrollWidth;
-  if (f < 44) { h1.classList.remove("adatta"); h1.style.fontSize = ""; } else h1.style.fontSize = Math.min(f, 220) + "px";
+  if (f < 44) { h1.classList.remove("adatta"); h1.style.fontSize = ""; } else h1.style.fontSize = Math.min(f * .8, 150) + "px";  // 80% della larghezza, max 150px
 }
 adattaTitolo(); addEventListener("resize", adattaTitolo); document.fonts?.ready.then(adattaTitolo);
 </script>
