@@ -150,9 +150,11 @@ figure{border-radius:10px; padding:10px 12px 6px}
 .gruppo{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
 .gruppo .et{font:600 .68rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-right:4px}
 .gruppo button{font:600 .78rem/1 var(--f-data); color:var(--ink); background:none; border:1px solid var(--line); border-radius:999px; padding:7px 12px; cursor:pointer}
-.gruppo button.on{background:var(--c1); border-color:var(--c1); color:var(--cover)}
+.gruppo button.on{background:var(--c1); border-color:var(--c1); color:var(--bg)}
+.gruppo button:not(.on):hover{background:#deedf8; border-color:#9cc6e3}  /* hover azzurrino */
+:root[data-theme="dark"] .gruppo button:not(.on):hover{background:color-mix(in srgb,var(--c1) 18%,transparent); border-color:color-mix(in srgb,var(--c1) 50%,var(--line))}
 select,input[type=search]{font:600 .8rem/1 var(--f-data); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px}
-input[type=search]{min-width:220px; flex:1}
+input[type=search]{min-width:220px; flex:1; font-weight:400}
 th[data-k]{cursor:pointer; user-select:none} th[data-k]:hover{color:var(--ink)} th.on::after{content:" ▼"; font-size:.7em} th.on.asc::after{content:" ▲"}
 td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
 td.netto{font-weight:700; color:var(--c1-ink)}
@@ -216,7 +218,7 @@ figure text{fill:var(--ink-3); font:11px ui-monospace,Consolas,monospace}
  <div class="gruppo" data-f="p"><span class="et">Proventi</span><button data-v="" class="on">Tutti</button><button data-v="Acc">Acc</button><button data-v="Dist">Dist</button></div>
  <div class="gruppo" data-f="t"><span class="et">Tipo</span><button data-v="" class="on">Tutti</button><button data-v="Corp">Corp</button><button data-v="Govt">Govt</button></div>
  <div class="gruppo" data-f="b"><span class="et">Scadenza</span><button data-v="" class="on">Tutte</button><button data-v="0-3">0–3 anni</button><button data-v="4-8">4–8 anni</button><button data-v="8+">oltre 8</button></div>
- <div class="gruppo" data-f="r"><span class="et">Rolling</span><button data-v="" class="on">Inclusi</button><button data-v="no">Esclusi</button></div>
+ <div class="gruppo" data-f="r"><span class="et">Rolling</span><button data-v="">Inclusi</button><button data-v="no" class="on">Esclusi</button></div>
  <input id="f-cerca" type="search" placeholder="Cerca nome o emittente…" aria-label="Cerca">
 </div>
 
@@ -286,7 +288,7 @@ const it=s=>s.split("-").reverse().join("/"), v={ultimo:it(D.iso.at(-1)),primo:i
 document.querySelectorAll("[data-d]").forEach(s=>s.textContent=v[s.dataset.d]);
 E.forEach(e=>{e.lordo=e.y.at(-1); e.net=(e.lordo-e.ter)*(1-D.aliq[e.t]); const n=e.a-D.base; e.b=n<=3?"0-3":n<=8?"4-8":"8+";});
 const pc=x=>x.toFixed(2).replace(".",",")+"%";
-const S={p:"",t:"",b:"",q:"",r:"",k:"net",asc:false,pg:0,n:10};
+const S={p:"",t:"",b:"",q:"",r:"no",k:"net",asc:false,pg:0,n:10};
 function filtrati(){const q=S.q.toLowerCase();
   return E.filter(e=>(!S.p||e.p===S.p)&&(!S.t||e.t===S.t)&&(!S.b||e.b===S.b)&&(!S.r||!/rolling/i.test(e.n))&&(!q||(e.n+" "+e.em).toLowerCase().includes(q)))
    .sort((a,b)=>{const x=a[S.k],y=b[S.k],r=typeof x==="string"?x.localeCompare(y):x-y; return S.asc?r:-r;});}
@@ -304,15 +306,15 @@ function plot(id,tr,o){const L={...base,...o,xaxis:{gridcolor:GR,...(o.xaxis||{}
 function grafici(L){
   colori();
   const top=L.slice().sort((a,b)=>b.net-a.net).slice(0,8);
-  plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:2.2},marker:{size:6},hoverlabel:{bordercolor:PAL[i]},hovertemplate:"<b>%{fullData.name}</b><br>%{x|%d/%m/%Y}: %{y:.2f}%<extra></extra>"})),
+  plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:1.5},marker:{size:4},hoverlabel:{bordercolor:PAL[i]},hovertemplate:"<b>%{fullData.name}</b><br>%{x|%d/%m/%Y}: %{y:.2f}%<extra></extra>"})),
     {hovermode:"closest",xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}});
   const med=["Corp","Govt"].map(t=>{const f=L.filter(e=>e.t===t&&!e.y.includes(null)); if(!f.length)return null;
-    return {x:D.iso,y:D.iso.map((_,i)=>f.reduce((s,e)=>s+e.ny[i],0)/f.length),type:"scatter",mode:"lines+markers",name:t+" (media di "+f.length+" ETF)",line:{color:CT[t],width:2.4},hovertemplate:"%{y:.2f}%"};}).filter(Boolean);
+    return {x:D.iso,y:D.iso.map((_,i)=>f.reduce((s,e)=>s+e.ny[i],0)/f.length),type:"scatter",mode:"lines+markers",name:t+" (media di "+f.length+" ETF)",line:{color:CT[t],width:1.6},hovertemplate:"%{y:.2f}%"};}).filter(Boolean);
   plot("g-avg",med,{xaxis:{type:"date",tickformat:"%d/%m"}});
   const tr=[]; for(const t of ["Corp","Govt"]){const f=L.filter(e=>e.t===t); if(!f.length)continue;
     tr.push({x:f.map(e=>e.a),y:f.map(e=>e.net),text:f.map(e=>e.n+" ("+e.p+")"),type:"scatter",mode:"markers",name:t+" ETF",marker:{color:CT[t],size:8,opacity:.5},hovertemplate:"%{text}<br>%{y:.2f}%<extra></extra>"});
     const m={}; f.forEach(e=>(m[e.a]??=[]).push(e.net)); const ys=Object.keys(m).sort();
-    tr.push({x:ys.map(Number),y:ys.map(a=>m[a].reduce((x,y)=>x+y)/m[a].length),type:"scatter",mode:"lines",name:t+" media",line:{color:CT[t],width:2.6},hovertemplate:"media %{y:.2f}%<extra></extra>"});}
+    tr.push({x:ys.map(Number),y:ys.map(a=>m[a].reduce((x,y)=>x+y)/m[a].length),type:"scatter",mode:"lines",name:t+" media",line:{color:CT[t],width:1.6},hovertemplate:"media %{y:.2f}%<extra></extra>"});}
   plot("g-curva",tr,{hovermode:"closest",xaxis:{dtick:1,tickformat:"d"}});}
 function tabella(){const L=filtrati(), np=Math.max(1,Math.ceil(L.length/S.n)); S.pg=Math.min(S.pg,np-1);
   $("tab").tBodies[0].innerHTML=L.slice(S.pg*S.n,(S.pg+1)*S.n).map((e,i)=>`<tr><td>${S.pg*S.n+i+1}</td><td>${e.n}</td><td>${e.em}</td><td><span class="badge ${e.t.toLowerCase()}">${e.t}</span></td><td>${e.p}</td><td>${e.sc}</td><td class="num">${pc(e.ter)}</td><td class="num">${pc(e.lordo)}</td><td class="num netto">${pc(e.net)}</td></tr>`).join("")||'<tr><td colspan="9">Nessun ETF con questi filtri.</td></tr>';
