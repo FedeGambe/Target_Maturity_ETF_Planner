@@ -301,14 +301,13 @@ function colori(){const v=n=>getComputedStyle(document.documentElement).getPrope
   margin:{l:58,r:18,t:46,b:60},legend:{orientation:"h",y:-.18},modebar:{orientation:"h",bgcolor:"rgba(0,0,0,0)",color:v("--ink-3"),activecolor:v("--ink")},hovermode:"x unified",hoverlabel:{bgcolor:v("--surface"),bordercolor:v("--ink"),namelength:-1,align:"left",font:{size:13,color:v("--ink"),family:"ui-monospace,Consolas,monospace"}}};}
 const cfg={responsive:true,displaylogo:false,displayModeBar:true,scrollZoom:false,modeBarButtonsToRemove:["select2d","lasso2d","zoomIn2d","zoomOut2d","autoScale2d"]};
 // zoom robusto: asse y sui baffi di Tukey [Q1 − K·IQR, Q3 + K·IQR] delle serie visibili, gli outlier finiscono fuori vista
-const K_IQR=1.5;  // ponytail: 0 = solo Q1–Q3 stretto
 function quantile(a,q){const p=(a.length-1)*q, i=Math.floor(p); return a[i]+((a[i+1]??a[i])-a[i])*(p-i);}
-const zoomIQR={name:"zoomIQR",title:"Zoom senza outlier (Q1–Q3 ± 1,5·IQR) · doppio clic per tornare",
+const zoomIQR=k=>({name:"zoomIQR",title:"Zoom senza outlier (Q1–Q3 ± "+String(k).replace(".",",")+"·IQR) · doppio clic per tornare",
   icon:{width:1000,height:1000,path:"M100 250h800v70H100zM100 680h800v70H100zM300 400h400v200H300z"},
   click(gd){const v=gd.data.filter(t=>t.visible!=="legendonly").flatMap(t=>t.y).filter(Number.isFinite).sort((a,b)=>a-b); if(v.length<4)return;
-    const q1=quantile(v,.25), q3=quantile(v,.75), iqr=q3-q1, pad=Math.max(iqr*K_IQR,iqr*.1,.01);
-    Plotly.relayout(gd,{"yaxis.range":[q1-pad,q3+pad]});}};
-const cfgIQR={...cfg,modeBarButtonsToAdd:[zoomIQR]};
+    const q1=quantile(v,.25), q3=quantile(v,.75), iqr=q3-q1, pad=Math.max(iqr*k,iqr*.1,.01);
+    Plotly.relayout(gd,{"yaxis.range":[q1-pad,q3+pad]});}});
+const cfgIQR=k=>({...cfg,modeBarButtonsToAdd:[zoomIQR(k)]});  // k = margine in IQR: più alto, più tollerante; 0 = solo Q1–Q3
 function plot(id,tr,o,c=cfg){const L={...base,...o,xaxis:{gridcolor:GR,...(o.xaxis||{})},yaxis:{gridcolor:GR,ticksuffix:"%",tickformat:".2f",zeroline:false,...(o.yaxis||{})}};
   if(!tr.length)L.annotations=[{text:"Nessun dato con questi filtri",showarrow:false,x:.5,y:.5,xref:"paper",yref:"paper"}];
   Plotly.react(id,tr,L,c);}
@@ -316,10 +315,10 @@ function grafici(L){
   colori();
   const top=L.slice().sort((a,b)=>b.net-a.net).slice(0,8);
   plot("g-top",top.map((e,i)=>({x:D.iso,y:e.ny,type:"scatter",mode:"lines+markers",name:e.n.replace(/ UCITS ETF.*/,"")+" ("+e.p+")",line:{color:PAL[i],width:1.5},marker:{size:4},hoverlabel:{bordercolor:PAL[i]},hovertemplate:"<b>%{fullData.name}</b><br>%{x|%d/%m/%Y}: %{y:.2f}%<extra></extra>"})),
-    {hovermode:"closest",xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}},cfgIQR);
+    {hovermode:"closest",xaxis:{type:"date",tickformat:"%d/%m"},margin:{...base.margin,b:110},legend:{orientation:"h",y:-.25}},cfgIQR(3));
   const med=["Corp","Govt"].map(t=>{const f=L.filter(e=>e.t===t&&!e.y.includes(null)); if(!f.length)return null;
     return {x:D.iso,y:D.iso.map((_,i)=>f.reduce((s,e)=>s+e.ny[i],0)/f.length),type:"scatter",mode:"lines+markers",name:t+" (media di "+f.length+" ETF)",line:{color:CT[t],width:1.6},hovertemplate:"%{y:.2f}%"};}).filter(Boolean);
-  plot("g-avg",med,{xaxis:{type:"date",tickformat:"%d/%m"}},cfgIQR);
+  plot("g-avg",med,{xaxis:{type:"date",tickformat:"%d/%m"}},cfgIQR(1.5));
   const tr=[]; for(const t of ["Corp","Govt"]){const f=L.filter(e=>e.t===t); if(!f.length)continue;
     tr.push({x:f.map(e=>e.a),y:f.map(e=>e.net),text:f.map(e=>e.n+" ("+e.p+")"),type:"scatter",mode:"markers",name:t+" ETF",marker:{color:CT[t],size:8,opacity:.5},hovertemplate:"%{text}<br>%{y:.2f}%<extra></extra>"});
     const m={}; f.forEach(e=>(m[e.a]??=[]).push(e.net)); const ys=Object.keys(m).sort();
