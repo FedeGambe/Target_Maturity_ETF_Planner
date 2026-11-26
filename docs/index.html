@@ -286,7 +286,8 @@ $("tema").addEventListener("click", () => {
 fetch("dati.json").then(r=>r.json()).then(D=>{const E=D.etfs;
 const it=s=>s.split("-").reverse().join("/"), v={ultimo:it(D.iso.at(-1)),primo:it(D.iso[0]),n:D.iso.length};
 document.querySelectorAll("[data-d]").forEach(s=>s.textContent=v[s.dataset.d]);
-E.forEach(e=>{e.lordo=e.y.at(-1); e.net=(e.lordo-e.ter)*(1-D.aliq[e.t]); const n=e.a-D.base; e.b=n<=3?"0-3":n<=8?"4-8":"8+";});
+E.forEach(e=>{e.lordo=e.y.findLast(v=>v!=null);  // ultimo dato valido: un buco nell’ultima rilevazione non deve diventare 0 (null−TER = netto negativo)
+  e.net=(e.lordo-e.ter)*(1-D.aliq[e.t]); const n=e.a-D.base; e.b=n<=3?"0-3":n<=8?"4-8":"8+";});
 const pc=x=>x.toFixed(2).replace(".",",")+"%";
 const S={p:"",t:"",b:"",q:"",r:"no",k:"net",asc:false,pg:0,n:10};
 function filtrati(){const q=S.q.toLowerCase();
