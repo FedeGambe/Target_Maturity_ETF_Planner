@@ -124,7 +124,7 @@ def ishares():
             name = ps.title.text.split("|")[0].strip()
             if label == "Government Bonds" and "€" not in name:
                 continue
-            li = ps.select_one("li.yieldToWorst")
+            li = ps.select_one("li.yieldToWorst, li.fxHedgedYield")  # iShares ha rinominato la classe a nov 2026
             as_of = re.search(r"\d{2}/\d{2}/\d{4}", li.select_one(".header-nav-label").text) if li else None
             use = ps.select_one(".col-useOfProfitsCode .data")
             ter = ps.select_one(".col-emeaMgt .data")
